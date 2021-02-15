@@ -1,0 +1,34 @@
+{
+  "name": "guess-my-word",
+  "version": "1.0.0",
+  "description": "Share your drawing or stories with anyone in real time.",
+  "main": "app.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "tap test/**/*.test.js",
+    "start": "fastify start -l info app.js",
+    "dev": "fastify start -w -l info -P app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/manojchrsya/guess-my-word.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/manojchrsya/guess-my-word/issues"
+  },
+  "homepage": "https://github.com/manojchrsya/guess-my-word#readme",
+  "dependencies": {
+    "fastify": "^3.0.0",
+    "fastify-plugin": "^3.0.0",
+    "fastify-autoload": "^3.0.2",
+    "fastify-cli": "^2.5.1"
+  },
+  "devDependencies": {
+    "tap": "^14.0.0"
+  }
+}
