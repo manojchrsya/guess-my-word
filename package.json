@@ -29,6 +29,9 @@
     "fastify-cli": "^2.5.1"
   },
   "devDependencies": {
+    "@commitlint/cli": "^11.0.0",
+    "@commitlint/config-conventional": "^11.0.0",
+    "husky": "^5.0.9",
     "tap": "^14.0.0"
   }
 }
