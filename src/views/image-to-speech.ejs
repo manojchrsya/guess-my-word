@@ -8,7 +8,7 @@
   <meta name="description" content="">
   <meta name="author" content="">
 
-  <title>Fastify - Read and Listen text using Browser's Speech Synthesis feature.</title>
+  <title>Fastify - guess my word game.</title>
 
   <!-- Bootstrap core CSS -->
   <link href="<%= url %>/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
@@ -16,110 +16,36 @@
   <!-- Custom fonts for this template -->
   <link href="<%= url %>/vendor/fontawesome-free/css/all.min.css" rel="stylesheet">
   <link href="<%= url %>/vendor/simple-line-icons/css/simple-line-icons.css" rel="stylesheet" type="text/css">
+  <link href="<%= url %>/vendor/canvas/jquery-drawpad.css" rel="stylesheet" type="text/css">
   <link href="https://fonts.googleapis.com/css?family=Lato:300,400,700,300italic,400italic,700italic" rel="stylesheet" type="text/css">
-
-  <!-- Custom styles for this template -->
-  <link href="<%= url %>/css/landing-page.css" rel="stylesheet">
-  <link href="<%= url %>/vendor/codemirror/codemirror.css" rel="stylesheet">
   <style>
     .CodeMirror { text-align: left!important; }
     #code-wrapper { display: none; }
-    .dropdown-menu { height: 250px; overflow-y:auto; }
+    .demo-content{ padding: 15px; font-size: 18px; min-height: 150px; background: #dbdfe5; margin-bottom: 10px; }
+    .demo-content.bg-alt{ background: #abb1b8; }
+    #target { width:500px; height:400px; }
+    .profileImage {display: inline-block; width: 50px; height: 50px; border-radius: 50%; background: #512DA8; font-size: 15px; color: #fff; text-align: center; line-height: 50px; margin: 10px 0; }
   </style>
 </head>
 
 <body class="bg-light">
   <section class="text-center pt-4">
     <div class="container">
-      <h3>Text to Speech</h3>
+      <h3>Guess My Word</h3>
       <div class="playgroud">
         <div class="alert alert-danger d-none instructions" role="alert"></div>
-        <div class="languages">
-          <div class="row text-center">
-            <div class="col-md-6">
-              <a type="button" href="/download" class="btn btn-primary">
-                Download Sample &nbsp;&nbsp;<i class="fas fa-download" aria-hidden="true"></i>
-              </a>
-              <div class="language btn-group">
-                <button class="btn btn-primary dropdown-toggle selected-lang" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                  Choose Languages
-                </button>
-                <div class="dropdown-menu voices"></div>
-              </div>
-              <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#searchContent">
-                Search &nbsp;&nbsp;<i class="fas fa-search" aria-hidden="true"></i>
-              </button>
-            </div>
-            <div class="col-md-3 offset-md-3">
-              <form action="/upload" method="post" enctype="multipart/form-data">
-                <div class="form-group">
-                  <input type="file" name="file" onchange="this.form.submit()" class="form-control-file btn btn-primary">
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
-        <div class="box-content mt-3">
-          <div class="card">
-            <div class="card-body">
-              <textarea id="code-wrapper"></textarea>
-            </div>
-          </div>
-        </div>
-        <div class="actions">
-          <div class="btn-group mt-3" role="group" aria-label="Basic example">
-            <!-- <button type="button" class="btn btn-secondary reverse">
-              Reverse &nbsp;&nbsp;<i class="fas fa-backward" aria-hidden="true"></i>
-            </button> -->
-            <button type="button" class="btn btn-secondary play">
-              Play &nbsp;&nbsp;<i class="fas fa-play" aria-hidden="true"></i>
-            </button>
-            <button type="button" class="btn btn-secondary pause d-none">
-              Pause &nbsp;&nbsp;<i class="fas fa-pause" aria-hidden="true"></i>
-            </button>
-            <button type="button" class="btn btn-secondary reset">
-              Reset &nbsp;&nbsp;<i class="fas fa-history" aria-hidden="true"></i>
-            </button>
-            <!-- <button type="button" class="btn btn-secondary forward">
-              Forward &nbsp;&nbsp;<i class="fas fa-forward" aria-hidden="true"></i>
-            </button> -->
-          </div>
-        </div>
+        <%- include('partials/board.ejs') %>
       </div>
     </div>
   </section>
-
-  <div class="modal fade" id="searchContent" tabindex="-1" role="dialog" aria-labelledby="searchContentLabel">
-    <div class="modal-dialog modal-lg" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <div class="col-md-11">
-            <div class="input-group">
-              <input type="text" class="form-control" placeholder="Type anything....">
-              <div class="input-group-append">
-                <span class="input-group-text">
-                  <i class="fas fa-search" aria-hidden="true"></i>
-                </span>
-              </div>
-            </div>
-          </div>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
-        <div class="modal-body">
-          <div class="container text-center">
-            <div class="row">
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
   <!-- Bootstrap core JavaScript -->
   <script src="<%= url %>/vendor/jquery/jquery.min.js"></script>
   <script src="<%= url %>/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-  <script src="<%= url %>/vendor/codemirror/codemirror.js"></script>
+  <script src="<%= url %>/vendor/canvas/jquery-drawpad.js"></script>
+  <script>
+    $(document).ready(function() {
+      $("#target").drawpad();
+    });
+  </script>
 </body>
-
 </html>
