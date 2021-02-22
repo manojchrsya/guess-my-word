@@ -1,20 +1,23 @@
 import path from 'path';
-import AutoLoad  from 'fastify-autoload'
-import { FastifyInstance } from 'fastify'
-import initConfig from './lib/config'
-
-export default async (fastify : FastifyInstance, opts : any) => {
+import AutoLoad from 'fastify-autoload';
+import { FastifyInstance } from 'fastify';
+import initConfig from './lib/config';
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export default async (fastify: FastifyInstance, opts: any) => {
   // initilize and load all config from .env file
   initConfig();
 
   // 1. set default template enging to render pages
   // 2. server static file from server
   fastify
-    .register(require('point-of-view'), { engine: { ejs: require('ejs') }, root: path.join(__dirname, 'views') })
+    .register(require('point-of-view'), {
+      engine: { ejs: require('ejs') },
+      root: path.join(__dirname, 'views'),
+    })
     .register(require('fastify-static'), { root: path.join(__dirname, 'public') })
     .register(require('fastify-cors'), { exposedHeaders: 'Content-Disposition' })
     .register(require('fastify-compress'), { threshold: 0 })
-    .register(require('fastify-formbody'))
+    .register(require('fastify-formbody'));
 
   // Do not touch the following lines
 
@@ -32,4 +35,4 @@ export default async (fastify : FastifyInstance, opts : any) => {
     dir: path.join(__dirname, 'routes'),
     options: { ...opts },
   });
-}
+};

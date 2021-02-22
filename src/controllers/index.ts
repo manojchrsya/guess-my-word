@@ -1,8 +1,9 @@
-import { FastifyRequest, FastifyReply  } from 'fastify';
+import { FastifyRequest, FastifyReply } from 'fastify';
 
 declare module 'fastify' {
   interface FastifyReply {
-    view: any,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    view: any;
   }
 }
 

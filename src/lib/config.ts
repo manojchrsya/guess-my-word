@@ -14,6 +14,6 @@ export default function loadConfig(): void {
       .prop('NODE_ENV', S.string().enum(['development', 'production']).required())
       .prop('HOST', S.string().required())
       .prop('PORT', S.string().default('3000').required())
-      .prop('BASE_URL', S.string().required())
+      .prop('BASE_URL', S.string().required()),
   });
 }

@@ -1,5 +1,5 @@
-import { FastifyPluginAsync, FastifyInstance } from 'fastify'
-import fp from 'fastify-plugin'
+import { FastifyPluginAsync, FastifyInstance } from 'fastify';
+import fp from 'fastify-plugin';
 // the use of fastify-plugin is required to be able
 // to export the decorators to the outer scope
 
@@ -8,10 +8,9 @@ import fp from 'fastify-plugin'
 //   myPluginOption: string
 // }
 
-const TimeStamp : FastifyPluginAsync = async function (fastify : FastifyInstance) {
-  console.log('hloeee');
+const TimeStamp: FastifyPluginAsync = async function (fastify: FastifyInstance) {
   fastify.decorate('timestamp', () => Date.now());
   return Promise.resolve();
-}
+};
 
-export default fp(TimeStamp, '3.x')
+export default fp(TimeStamp, '3.x');

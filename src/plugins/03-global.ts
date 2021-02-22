@@ -6,10 +6,11 @@ import Promise from 'bluebird';
 // to export the decorators to the outer scope
 declare module 'fastify' {
   interface FastifyReply {
-    locals: any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    locals: any;
   }
 }
-const FastifyGlobal : FastifyPluginAsync = async function (fastify : FastifyInstance) {
+const FastifyGlobal: FastifyPluginAsync = async function (fastify: FastifyInstance) {
   global.Promise = Promise;
   // adding pre handler for locals
   fastify.addHook('preHandler', (_request: FastifyRequest, reply: FastifyReply, next) => {
@@ -23,4 +24,4 @@ const FastifyGlobal : FastifyPluginAsync = async function (fastify : FastifyInst
   });
 };
 
-export default fp(FastifyGlobal, '3.x')
+export default fp(FastifyGlobal, '3.x');
