@@ -2,7 +2,7 @@ import fastify, { FastifyInstance } from 'fastify';
 import fp from 'fastify-plugin';
 import App from './app';
 import socketioServer from 'fastify-socket.io';
-import Socket from './lib/Socket';
+import Socket from './lib/socket';
 
 // const app = Fastify({ logger: true, pluginTimeout: 4000 });
 const app: FastifyInstance = fastify({ logger: true, pluginTimeout: 4000 });
