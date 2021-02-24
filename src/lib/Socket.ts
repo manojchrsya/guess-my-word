@@ -30,7 +30,7 @@ export default class Socket {
         socketId: socket.id,
       };
       const shareLink = `${process.env.BASE_URL}?code=${groupId}`;
-      socket.emit('group added', { groupId, shareLink });
+      socket.emit('group added', { groupId, shareLink, groups: this.groups[groupId] });
     });
   }
 }

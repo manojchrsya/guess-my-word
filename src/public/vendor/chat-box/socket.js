@@ -29,5 +29,17 @@ $(function () {
     socket.emit('create group', user);
   })
 
+  $(".join-group").on('click', function(e) {
+    e.preventDefault();
+    user.name = $('.username').val();
+    if (!user.name) {
+      $(".instructions").removeClass('d-none').text('Please enter your name!!');
+      return false
+    }
+    $(".instructions").addClass('d-none').text('');
+    user.id = Math.random().toString(36).substring(2);
+    // socket.emit('join group', { user });
+  });
+
   GUESSMYWORD.init();
 });
