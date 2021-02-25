@@ -5,6 +5,7 @@ $(function () {
   var GUESSMYWORD = {
     init: function() {
       this.groupAdded();
+      this.groupJoined();
     },
     groupAdded() {
       socket.on('group added', (data) => {
@@ -12,6 +13,13 @@ $(function () {
         if (data.shareLink) {
           $("#uniqueGameCode").val(data.shareLink);
         }
+        $("#login, #board").addClass('d-none');
+        $("#lobby").removeClass('d-none');
+      });
+    },
+    groupJoined() {
+      socket.on('group joined', (data) => {
+        console.log(data);
         $("#login, #board").addClass('d-none');
         $("#lobby").removeClass('d-none');
       });
@@ -38,7 +46,8 @@ $(function () {
     }
     $(".instructions").addClass('d-none').text('');
     user.id = Math.random().toString(36).substring(2);
-    // socket.emit('join group', { user });
+    var groupId = $("#uniqueGameCode").attr('data-groupId');
+    socket.emit('join group', { ...user, groupId });
   });
 
   GUESSMYWORD.init();

@@ -17,7 +17,8 @@ if (require.main === module) {
   app.ready((err) => {
     if (err) throw err;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    app.io.on('connect', (socket: any) => new Socket(socket));
+    new Socket(app.io);
+    // app.io.on('connect', (socket: any) => );
   });
 
   // start you server and listing on specified port
