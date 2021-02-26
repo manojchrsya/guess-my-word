@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import { profiles } from '../utils/contant';
 export interface Group {
   id?: string;
 }
@@ -7,6 +8,7 @@ export interface User {
   name: string;
   groupId?: string;
   socketId?: string;
+  profilePic?: string;
 }
 
 export default class Socket {
@@ -35,7 +37,10 @@ export default class Socket {
       this.groups[groupId][data.id] = {
         name: data.name,
         socketId: socket.id,
+        profilePic: profiles[0],
       };
+      // eslint-disable-next-line
+      console.log(this.groups[groupId]);
       const shareLink = `${process.env.BASE_URL}?code=${groupId}`;
       socket.emit('group added', { groupId, shareLink, groups: this.groups[groupId] });
     });
@@ -51,6 +56,7 @@ export default class Socket {
         this.groups[groupId][data.id] = {
           name: data.name,
           socketId: socket.id,
+          profilePic: profiles[0],
         } as User;
         socket.emit('group joined', { groupId, groups: this.groups[groupId] });
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
