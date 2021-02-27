@@ -5,32 +5,38 @@
       <div class="demo-content">
         <form class="row g-3">
           <div class="col-md-6 mt-2">
-            <div class="dropdown">
-              <button class="btn btn-secondary dropdown-toggle btn-block" type="button" id="roundDropDown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                Rounds
-              </button>
-              <div class="dropdown-menu" aria-labelledby="roundDropDown">
-                <a class="dropdown-item" href="#">1</a>
-                <a class="dropdown-item" href="#">2</a>
-                <a class="dropdown-item" href="#">3</a>
+            <div class="form-group">
+              <label for="roundDropDown">No. of Rounds</label>
+              <div class="dropdown">
+                <button class="btn btn-secondary dropdown-toggle btn-block" type="button" id="roundDropDown" data-toggle="dropdown">
+                  1 Round
+                </button>
+                <div class="dropdown-menu" aria-labelledby="roundDropDown">
+                  <a class="dropdown-item selected" data-value="1" href="#">1 Round</a>
+                  <a class="dropdown-item" data-value="2" href="#">2 Rounds</a>
+                  <a class="dropdown-item" data-value="3" href="#">3 Rounds</a>
+                </div>
               </div>
             </div>
           </div>
           <div class="col-md-6 mt-2">
-            <div class="dropdown">
-              <button class="btn btn-secondary dropdown-toggle btn-block" type="button" id="timerDropDown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                Drawing Time
-              </button>
-              <div class="dropdown-menu" aria-labelledby="timerDropDown">
-                <a class="dropdown-item" href="#">30</a>
-                <a class="dropdown-item" href="#">60</a>
-                <a class="dropdown-item" href="#">90</a>
+            <div class="form-group">
+              <label for="roundDropDown">Drawing Time</label>
+              <div class="dropdown">
+                <button class="btn btn-secondary dropdown-toggle btn-block" type="button" id="timerDropDown" data-toggle="dropdown">
+                  30 Seconds
+                </button>
+                <div class="dropdown-menu" aria-labelledby="timerDropDown">
+                  <a class="dropdown-item selected" data-value="30" href="#">30 Seconds</a>
+                  <a class="dropdown-item" data-value="60" href="#">60 Seconds</a>
+                  <a class="dropdown-item" data-value="90" href="#">90 Seconds</a>
+                </div>
               </div>
             </div>
           </div>
           <div class="col-md-12 mt-4">
             <div class="form-group">
-              <button type="submit" class="btn btn-info btn-block">Let's Start!!</button>
+              <button type="button" class="btn btn-info btn-block start-game">Let's Start!!</button>
             </div>
           </div>
         </form>
@@ -38,7 +44,7 @@
     </div>
     <div class="col-sm-6">
       <h5>Players</h5>
-      <div class="demo-content bg-alt players">
+      <div class="demo-content players">
         <div class="profileImage">
           <img class="img-responsive img-circle" width="100%" src="https://avatars.githubusercontent.com/u/8006173" alt="User profile picture">
           <p class="text-center">Engineer</p>
