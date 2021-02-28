@@ -16,6 +16,11 @@ export interface Settings {
   timings: number;
 }
 
+export interface Chat extends User {
+  message: string;
+  senderId: string;
+}
+
 export default class Socket {
   private groups: { [key: string]: Group } = {};
   private users: User[];
@@ -25,6 +30,7 @@ export default class Socket {
     ioconn.on('connect', (socket: any) => {
       this.addGroup(socket);
       this.joinGroup(socket);
+      this.sendMessage(socket);
       // eslint-disable-next-line
       console.log(`socket connected ${socket.id}`);
       this.userDisconnected(socket);
@@ -91,7 +97,25 @@ export default class Socket {
       }
     });
   }
-
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  sendMessage(socket: any): void {
+    socket.on('send message', async (data: Chat) => {
+      const { groupId, message } = data;
+      if (groupId && message) {
+        const chat = {
+          senderId: data.id, // set userId as senderId
+          message,
+        };
+        socket.emit('new message', { groupId, chat });
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        for (const [_key, user] of Object.entries(this.groups[groupId])) {
+          if (user.socketId !== socket.id) {
+            socket.to(user.socketId).emit('new message', { groupId, chat });
+          }
+        }
+      }
+    });
+  }
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   userDisconnected(socket: any): void {
     socket.on('disconnect', async () => {

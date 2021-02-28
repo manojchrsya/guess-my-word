@@ -2,7 +2,9 @@
 $(function () {
   var socket = io();
   var user = {};
+  var groupId = '';
   var settings = {rounds: 1, timer: 30};
+  var $chatContainer = $('#chat-content');
   const templates = {
     profile: function(user) {
       return `<div class="profileImage">
@@ -17,7 +19,7 @@ $(function () {
       </li>`;
     },
     chat: function(data) {
-      var ownMessage = data.userId === user.id ? 'media-chat-reverse' : '';
+      var ownMessage = data.senderId === user.id ? 'media-chat-reverse' : '';
       return `<div class="media media-chat ${ownMessage}">
           <div class="media-body">
               <p>${data.message}</p>
@@ -30,6 +32,7 @@ $(function () {
       this.groupAdded();
       this.groupJoined();
       this.onDisconnect();
+      this.newMessage();
     },
     renderProfiles: function(users) {
       let profileString = '';
@@ -56,6 +59,14 @@ $(function () {
         $("#login, #board").addClass('d-none');
         $("#lobby").removeClass('d-none');
         this.renderProfiles(data.groups);
+      });
+    },
+    newMessage: function() {
+      socket.on('new message', (data) => {
+        if (data.chat) {
+          $chatContainer.append(templates.chat(data.chat)).hide().fadeIn();
+          $('.publisher-input').val('');
+        }
       });
     },
     onDisconnect: function() {
@@ -99,7 +110,7 @@ $(function () {
     }
     $(".instructions").addClass('d-none').text('');
     user.id = Math.random().toString(36).substring(2);
-    var groupId = $("#uniqueGameCode").attr('data-groupId');
+    groupId = $("#uniqueGameCode").attr('data-groupId');
     socket.emit('join group', { ...user, groupId });
   });
 
@@ -109,6 +120,15 @@ $(function () {
     $("#login, #lobby").addClass('d-none');
     $("#board").removeClass('d-none');
     // this.renderProfiles(data.groups);
+  })
+
+  $('.publisher-btn').on('click', function(e) {
+    e.preventDefault();
+    var chatMessage = $('.publisher-input').val();
+    if (chatMessage && chatMessage.trim().length > 0) {
+      groupId = $("#uniqueGameCode").attr('data-groupId');
+      socket.emit('send message', { ...user, groupId, message: chatMessage });
+    }
   })
 
   GUESSMYWORD.init();
