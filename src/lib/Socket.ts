@@ -106,10 +106,12 @@ export default class Socket {
           senderId: data.id, // set userId as senderId
           message,
         };
+        const sender = this.groups[groupId] && this.groups[groupId][data.id];
         socket.emit('new message', { groupId, chat });
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         for (const [_key, user] of Object.entries(this.groups[groupId])) {
           if (user.socketId !== socket.id) {
+            chat.message = `<b>${sender.name}:</b> ${chat.message}`;
             socket.to(user.socketId).emit('new message', { groupId, chat });
           }
         }

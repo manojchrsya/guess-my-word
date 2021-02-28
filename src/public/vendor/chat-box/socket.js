@@ -66,6 +66,7 @@ $(function () {
         if (data.chat) {
           $chatContainer.append(templates.chat(data.chat)).hide().fadeIn();
           $('.publisher-input').val('');
+          $chatContainer.scrollTop($chatContainer.height());
         }
       });
     },
@@ -119,6 +120,7 @@ $(function () {
     console.log(settings);
     $("#login, #lobby").addClass('d-none');
     $("#board").removeClass('d-none');
+    $("#target").drawpad();
     // this.renderProfiles(data.groups);
   })
 
