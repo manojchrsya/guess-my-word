@@ -25,6 +25,7 @@
     let plugin = this;
     let $element = $(element);
 
+    plugin.socket = {};
     plugin.settings = {};
 
     const coordinate = { x: 0, y: 0 };
@@ -126,10 +127,22 @@
       ctx.moveTo(coordinate.x, coordinate.y);
       updateCoordinate(event);
       ctx.lineTo(coordinate.x, coordinate.y);
-
       ctx.stroke();
     };
-
+    const preHandleDraw = (event) => {
+      if (plugin.socket && plugin.socket.id) {
+        var eventData = {
+          offsetX: event.clientX,
+          offsetY: event.clientY,
+        };
+        plugin.socket.emit('on drawing', { event: eventData, groupId: plugin.settings.groupId });
+        plugin.socket.on('on drawing', (data) => {
+          handleDraw(data.event);
+        });
+      } else {
+        handleDraw(event);
+      }
+    };
     const initialize = () => {
       $element.addClass(pluginSuffix);
       $element.append(createCanvas());
@@ -138,7 +151,7 @@
 
       plugin.$canvas.on('mousedown', handleStartDraw);
       plugin.$canvas.on('mouseup mouseleave', handleStopDraw);
-      plugin.$canvas.on('mousemove', handleDraw);
+      plugin.$canvas.on('mousemove', preHandleDraw);
     };
 
     /* public methods */
@@ -154,6 +167,10 @@
 
     plugin.resize = function () {
       resizeCanvas();
+    };
+
+    plugin.socketInstance = (socket) => {
+      this.socket = socket;
     };
 
     plugin.init();

@@ -117,10 +117,10 @@ $(function () {
 
   $('.start-game').on('click', function(e) {
     e.preventDefault();
-    console.log(settings);
     $("#login, #lobby").addClass('d-none');
     $("#board").removeClass('d-none');
-    $("#target").drawpad();
+    const drawpadInstance = $("#target").drawpad({ groupId });
+    drawpadInstance.socketInstance(socket);
     // this.renderProfiles(data.groups);
   })
 
@@ -133,5 +133,7 @@ $(function () {
     }
   })
 
-  GUESSMYWORD.init();
+  $(window).on('load', function() {
+    GUESSMYWORD.init();
+  })
 });
