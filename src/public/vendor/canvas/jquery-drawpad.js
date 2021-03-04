@@ -7,6 +7,33 @@
 
 (function ($) {
   const pluginSuffix = 'drawpad';
+
+  // function throttle(callback, delay) {
+  //   var previousCall = new Date().getTime();
+  //   return function () {
+  //     var time = new Date().getTime();
+  //     if (time - previousCall >= delay) {
+  //       previousCall = time;
+  //       callback.apply(null, arguments);
+  //     }
+  //   };
+  // }
+  function throttle(callback, limit) {
+    var waiting = false; // Initially, we're not waiting
+    return function () {
+      // We return a throttled function
+      if (!waiting) {
+        // If we're not waiting
+        callback.apply(this, arguments); // Execute users function
+        waiting = true; // Prevent future invocations
+        setTimeout(function () {
+          // After a period of time
+          waiting = false; // And allow future invocations
+        }, limit);
+      }
+    };
+  }
+
   $.drawpad = function (element, options) {
     let defaults = {
       defaultColor: '#000000',
@@ -97,14 +124,20 @@
     };
 
     const handleStartDraw = (event) => {
-      drawing = true;
-      $element.addClass(`${pluginSuffix}-drawing`);
-      updateCoordinate(event);
-      handleDraw(event);
+      const eventData = {
+        offsetX: event.offsetX,
+        offsetY: event.offsetY,
+        drawing: true,
+        drawEvent: 'start',
+        drawingType,
+        lineStyle,
+      };
+      plugin.socket.emit('drawing', { event: eventData, groupId: plugin.settings.groupId });
     };
     const handleStopDraw = () => {
-      drawing = false;
-      $element.removeClass(`${pluginSuffix}-drawing`);
+      if (!drawing) return true;
+      const eventData = { drawing: false, drawEvent: 'stop' };
+      plugin.socket.emit('drawing', { event: eventData, groupId: plugin.settings.groupId });
     };
     const handleDraw = (event) => {
       if (!drawing) return;
@@ -120,7 +153,6 @@
         case 'eraser':
           ctx.globalCompositeOperation = 'destination-out';
           ctx.lineWidth = plugin.settings.eraserSize;
-
           break;
       }
       ctx.lineCap = lineStyle.type;
@@ -130,15 +162,16 @@
       ctx.stroke();
     };
     const preHandleDraw = (event) => {
+      if (!drawing) return;
       if (plugin.socket && plugin.socket.id) {
         var eventData = {
-          offsetX: event.clientX,
-          offsetY: event.clientY,
+          offsetX: event.offsetX,
+          offsetY: event.offsetY,
+          drawingType,
+          drawing,
+          lineStyle,
         };
-        plugin.socket.emit('on drawing', { event: eventData, groupId: plugin.settings.groupId });
-        plugin.socket.on('on drawing', (data) => {
-          handleDraw(data.event);
-        });
+        plugin.socket.emit('drawing', { event: eventData, groupId: plugin.settings.groupId });
       } else {
         handleDraw(event);
       }
@@ -149,9 +182,9 @@
       $element.append(createToolbox());
       resizeCanvas();
 
-      plugin.$canvas.on('mousedown', handleStartDraw);
-      plugin.$canvas.on('mouseup mouseleave', handleStopDraw);
-      plugin.$canvas.on('mousemove', preHandleDraw);
+      plugin.$canvas.on('mousedown', throttle(handleStartDraw, 50));
+      plugin.$canvas.on('mouseup mouseleave', throttle(handleStopDraw, 50));
+      plugin.$canvas.on('mousemove', throttle(preHandleDraw, 100));
     };
 
     /* public methods */
@@ -171,6 +204,25 @@
 
     plugin.socketInstance = (socket) => {
       this.socket = socket;
+      socket.on('drawing', (data) => {
+        if (data.event.drawEvent === 'stop') {
+          $element.removeClass(`${pluginSuffix}-drawing`);
+        }
+        if (data.event.drawEvent === 'start') {
+          $element.addClass(`${pluginSuffix}-drawing`);
+          updateCoordinate({ offsetX: data.event.offsetX, offsetY: data.event.offsetY });
+        }
+        drawing = data.event.drawing;
+        if (data.event.offsetX && data.event.offsetY) {
+          handleDraw({ offsetX: data.event.offsetX, offsetY: data.event.offsetY });
+        }
+        if (data.event.drawingType) {
+          drawingType = data.event.drawingType;
+        }
+        if (data.event.lineStyle && data.event.lineStyle.color) {
+          lineStyle.color = data.event.lineStyle.color;
+        }
+      });
     };
 
     plugin.init();

@@ -31,7 +31,7 @@ export default class Socket {
       this.addGroup(socket);
       this.joinGroup(socket);
       this.sendMessage(socket);
-      this.onDrawing(socket);
+      this.drawing(socket);
       // eslint-disable-next-line
       console.log(`socket connected ${socket.id}`);
       this.userDisconnected(socket);
@@ -134,16 +134,16 @@ export default class Socket {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  onDrawing(socket: any): void {
+  drawing(socket: any): void {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    socket.on('on drawing', async (data: any) => {
+    socket.on('drawing', async (data: any) => {
       const { groupId, event } = data;
       if (groupId && event) {
-        socket.emit('on drawing', { groupId, event });
+        socket.emit('drawing', { groupId, event });
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         for (const [_key, user] of Object.entries(this.groups[groupId])) {
           if (user.socketId !== socket.id) {
-            socket.to(user.socketId).emit('on drawing', { groupId, event });
+            socket.to(user.socketId).emit('drawing', { groupId, event });
           }
         }
       }
