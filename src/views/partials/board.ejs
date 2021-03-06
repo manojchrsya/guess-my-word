@@ -1,6 +1,6 @@
 <div id="board" class="box-content mt-3 d-none">
   <nav class="navbar navbar-expand-lg justify-content-center navbar-light bg-white">
-    <span class="navbar-brand mb-0 h1">30</span>
+
     <div class="collapse navbar-collapse">
       <ul class="nav navbar-nav mx-auto">
         <li class="nav-item disabled"><a class="nav-link" href="#">__</a></li>
@@ -11,7 +11,7 @@
     </div>
   </nav>
   <div class="row mt-2">
-    <div class="col-sm-3 pr-0">
+    <div class="col-sm-3 p-2">
       <h5>Players</h5>
       <div class="demo-content p-0">
         <ul class="list-group board-players">
@@ -25,14 +25,30 @@
       </div>
     </div>
     <div class="col-sm-6 mb-1">
-      <h5>Drawing Board</h5>
-      <div id="target" class="drawpad-dashed"></div>
+      <div class="row">
+        <div class="col-sm-12">
+          <span class="float-left h5">30</span>
+          <h5 class="d-inline">Drawing Board</h5>
+          <button class="float-right btn btn-danger btn-sm mr-2 mb-2"><i class="fa fa-sync-alt" aria-hidden="true"></i></button>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-sm-12">
+          <div id="target" class="drawpad-dashed"></div>
+        </div>
+      </div>
     </div>
     <div class="col-sm-3 pl-0">
-      <h5>Messages</h5>
-      <div class="page-content page-container" id="page-content">
-        <div class="row container d-flex justify-content-center ml-0 p-0">
-            <div class="card card-bordered">
+      <div class="row">
+        <div class="col-sm-12">
+          <h5>Messages</h5>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-sm-12">
+          <div class="page-content page-container" id="page-content">
+            <div class="row container d-flex justify-content-center ml-0 p-0">
+              <div class="card card-bordered ml-3 ml-md-0 w-100">
                 <div class="ps-container ps-theme-default ps-active-y" id="chat-content" style="overflow-y: scroll !important; height:350px !important;">
                     <!-- <div class="media media-chat media-chat-reverse">
                         <div class="media-body">
@@ -51,7 +67,9 @@
                   <input class="publisher-input" type="text" placeholder="Type any word to guess...">
                   <a class="publisher-btn text-info" href="#" data-abc="true"><i class="fa fa-paper-plane"></i></a>
                 </div>
+              </div>
             </div>
+          </div>
         </div>
       </div>
     </div>
