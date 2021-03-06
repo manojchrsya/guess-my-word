@@ -7,17 +7,8 @@
 
 (function ($) {
   const pluginSuffix = 'drawpad';
+  const $reset = $(`.${pluginSuffix}-reset`);
 
-  // function throttle(callback, delay) {
-  //   var previousCall = new Date().getTime();
-  //   return function () {
-  //     var time = new Date().getTime();
-  //     if (time - previousCall >= delay) {
-  //       previousCall = time;
-  //       callback.apply(null, arguments);
-  //     }
-  //   };
-  // }
   function throttle(callback, limit) {
     var waiting = false; // Initially, we're not waiting
     return function () {
@@ -118,6 +109,12 @@
       return $toolbox;
     };
 
+    const resetDrawPad = (event) => {
+      event.preventDefault();
+      const eventData = { drawEvent: 'reset' };
+      plugin.socket.emit('drawing', { event: eventData, groupId: plugin.settings.groupId });
+    };
+
     const updateCoordinate = (event) => {
       coordinate.x = event.offsetX;
       coordinate.y = event.offsetY;
@@ -182,6 +179,8 @@
       $element.append(createToolbox());
       resizeCanvas();
 
+      $reset.on('click', throttle(resetDrawPad, 100));
+
       plugin.$canvas.on('mousedown', throttle(handleStartDraw, 50));
       plugin.$canvas.on('mouseup mouseleave', throttle(handleStopDraw, 50));
       plugin.$canvas.on('mousemove', throttle(preHandleDraw, 100));
@@ -205,6 +204,10 @@
     plugin.socketInstance = (socket) => {
       this.socket = socket;
       socket.on('drawing', (data) => {
+        if (data.event.drawEvent === 'reset') {
+          plugin.clear();
+          return true;
+        }
         if (data.event.drawEvent === 'stop') {
           $element.removeClass(`${pluginSuffix}-drawing`);
         }

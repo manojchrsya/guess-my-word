@@ -3,6 +3,7 @@ $(function () {
   var socket = io();
   var user = {};
   var groupId = '';
+  var timer = false;
   var settings = {rounds: 1, timer: 30};
   var $chatContainer = $('#chat-content');
   const templates = {
@@ -34,6 +35,17 @@ $(function () {
       this.onDisconnect();
       this.newMessage();
     },
+    startTimer() {
+      let second = 0;
+      let interval = setInterval(() => {
+        $('.drawpad-timer').text(second);
+        if (second >= settings.timer) {
+          console.log('timesss up!!');
+          clearInterval(interval);
+        }
+        second++;
+      }, 1000);
+    },
     renderProfiles: function(users) {
       let profileString = '';
       let boardPlayers = '';
@@ -56,8 +68,12 @@ $(function () {
     },
     groupJoined() {
       socket.on('group joined', (data) => {
-        $("#login, #board").addClass('d-none');
-        $("#lobby").removeClass('d-none');
+        if (data.userId === user.id) {
+          $("#login, #board").addClass('d-none');
+          $("#lobby").removeClass('d-none');
+          this.startTimer();
+        }
+        console.log('joined', data);
         this.renderProfiles(data.groups);
       });
     },
@@ -98,7 +114,7 @@ $(function () {
       return false
     }
     $(".instructions").addClass('d-none').text('');
-    user.id = Math.random().toString(36).substring(2);
+    user.id = user.id || Math.random().toString(36).substring(2);
     socket.emit('create group', user);
   })
 
@@ -110,8 +126,9 @@ $(function () {
       return false
     }
     $(".instructions").addClass('d-none').text('');
-    user.id = Math.random().toString(36).substring(2);
+    user.id = user.id || Math.random().toString(36).substring(2);
     groupId = $("#uniqueGameCode").attr('data-groupId');
+    console.log(user.name + '--' + user.id + '---' + groupId);
     socket.emit('join group', { ...user, groupId });
   });
 

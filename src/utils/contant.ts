@@ -13,4 +13,6 @@ const profiles: Array<string> = [
   'https://avatars.githubusercontent.com/u/4006187',
 ];
 
-export { profiles };
+const words: Array<string> = ['mountain', 'city', 'industry', 'building', 'rain', 'cookie'];
+
+export { profiles, words };

@@ -1,15 +1,27 @@
 <div id="board" class="box-content mt-3 d-none">
-  <nav class="navbar navbar-expand-lg justify-content-center navbar-light bg-white">
-
-    <div class="collapse navbar-collapse">
-      <ul class="nav navbar-nav mx-auto">
-        <li class="nav-item disabled"><a class="nav-link" href="#">__</a></li>
-        <li class="nav-item disabled"><a class="nav-link" href="#">__</a></li>
-        <li class="nav-item disabled"><a class="nav-link" href="#">__</a></li>
-        <li class="nav-item disabled"><a class="nav-link" href="#">__</a></li>
+  <div class="row mt-2">
+    <div class="col-sm-12">
+      <ul class="list-group mx-auto">
+        <!-- <li class="list-group-item disabled">
+          <a class="d-inline m-1" href="#">__</a>
+          <a class="d-inline m-1" href="#">__</a>
+          <a class="d-inline m-1" href="#">&nbsp;&nbsp;&nbsp;</a>
+          <a class="d-inline m-1" href="#">__</a>
+          <a class="d-inline m-1" href="#">__</a>
+        </li> -->
+        <li class="list-group-item">
+          <!-- <input class="form-control mx-auto w-50 form-control-sm" type="text" placeholder="Please enter your word here..."> -->
+          <div class="input-group mx-auto w-50">
+            <input class="form-control form-control" type="text" placeholder="Please enter your word here...">
+            <div class="input-group-append">
+              <button class="btn btn-success" type="button"><i class="fa fa-save" aria-hidden="true"></i></button>
+            </div>
+          </div>
+        </li>
       </ul>
+
     </div>
-  </nav>
+  </div>
   <div class="row mt-2">
     <div class="col-sm-3 p-2">
       <h5>Players</h5>
@@ -27,9 +39,9 @@
     <div class="col-sm-6 mb-1">
       <div class="row">
         <div class="col-sm-12">
-          <span class="float-left h5">30</span>
+          <button class="float-left btn drawpad-timer btn-success rounded-circle btn-sm mr-2 mb-2">30</button>
           <h5 class="d-inline">Drawing Board</h5>
-          <button class="float-right btn btn-danger btn-sm mr-2 mb-2"><i class="fa fa-sync-alt" aria-hidden="true"></i></button>
+          <button class="float-right btn btn-danger drawpad-reset btn-sm mr-2 mb-2"><i class="fa fa-sync-alt" aria-hidden="true"></i></button>
         </div>
       </div>
       <div class="row">

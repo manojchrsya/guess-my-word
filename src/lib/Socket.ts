@@ -6,6 +6,7 @@ export interface Group {
 export interface User {
   id: string;
   name: string;
+  played: boolean;
   score?: number;
   groupId?: string;
   socketId?: string;
@@ -14,6 +15,7 @@ export interface User {
 export interface Settings {
   rounds: number;
   timings: number;
+  word: string;
 }
 
 export interface Chat extends User {
@@ -56,6 +58,7 @@ export default class Socket {
         name: data.name,
         socketId: socket.id,
         score: 0,
+        played: false,
         profilePic: profiles[this.profilePicIndex(this.groups[groupId])],
       };
 
@@ -80,19 +83,20 @@ export default class Socket {
           name: data.name,
           socketId: socket.id,
           score: 0,
+          played: false,
           profilePic: profiles[this.profilePicIndex(this.groups[groupId])],
         } as User;
         // add groupId and userId in socket instance
         socket.groupId = groupId;
         socket.userId = data.id;
 
-        socket.emit('group joined', { groupId, groups: this.groups[groupId] });
+        socket.emit('group joined', { groupId, groups: this.groups[groupId], userId: data.id });
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         for (const [_key, user] of Object.entries(this.groups[groupId])) {
           if (user.socketId !== socket.id) {
             socket
               .to(user.socketId)
-              .emit('group joined', { groupId, groups: this.groups[groupId] });
+              .emit('group joined', { groupId, groups: this.groups[groupId], userId: data.id });
           }
         }
       }
