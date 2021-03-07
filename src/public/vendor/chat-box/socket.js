@@ -26,14 +26,19 @@ $(function () {
               <p>${data.message}</p>
           </div>
       </div>`;
+    },
+    puzzle: function(letter) {
+      return `<a class="d-inline m-1 h3" href="#">${letter}</a>`
     }
   };
   var GUESSMYWORD = {
     init: function() {
       this.groupAdded();
       this.groupJoined();
+      this.startGame();
       this.onDisconnect();
       this.newMessage();
+      this.setPuzzle();
     },
     startTimer() {
       let second = 0;
@@ -60,21 +65,34 @@ $(function () {
       socket.on('group added', (data) => {
         if (data.shareLink) {
           $("#uniqueGameCode").val(data.shareLink);
+          groupId = data.groupId;
+          $("#uniqueGameCode").attr('data-groupId', data.groupId);
         }
+        $('#roundDropDown, #timerDropDown, .start-game').removeClass('disabled').attr('disabled', false);
         $("#login, #board").addClass('d-none');
         $("#lobby").removeClass('d-none');
-        this.renderProfiles(data.groups);
+        this.renderProfiles(data.groups && data.groups.users);
       });
     },
     groupJoined() {
       socket.on('group joined', (data) => {
+        console.log('joined', data);
         if (data.userId === user.id) {
           $("#login, #board").addClass('d-none');
           $("#lobby").removeClass('d-none');
-          this.startTimer();
+          // if game is already start then skip looby section
+          if (data.groups && data.groups.settings && data.groups.settings.status === 'start') {
+            this.initDrawPad(data);
+          }
+          // this.startTimer();
         }
-        console.log('joined', data);
-        this.renderProfiles(data.groups);
+        this.renderProfiles(data.groups && data.groups.users);
+      });
+    },
+    startGame() {
+      socket.on('start game', (data) => {
+        this.initDrawPad(data);
+        this.renderProfiles(data.groups && data.groups.users);
       });
     },
     newMessage: function() {
@@ -86,11 +104,36 @@ $(function () {
         }
       });
     },
+    setPuzzle: function() {
+      socket.on('set puzzle', (data) => {
+        if (data.settings && data.settings.puzzle && data.settings.puzzle.length > 0) {
+          const letters = data.settings.puzzle.split('');
+          let puzzleText = '';
+          letters.forEach(letter => {
+            letter = letter.trim() || '&nbsp;&nbsp;&nbsp;';
+            puzzleText += templates.puzzle(letter);
+          });
+          $('.puzzle-container').addClass('d-none');
+          $('.puzzle-text').removeClass('d-none').html(puzzleText);
+        }
+      });
+    },
     onDisconnect: function() {
       socket.on('disconnect', (data) => {
         // TODO: implement on disconnect event
       });
     },
+    initDrawPad: function(data) {
+      groupId = $("#uniqueGameCode").attr('data-groupId');
+      if (groupId === data.groupId) {
+        $("#login, #lobby").addClass('d-none');
+        $("#board").removeClass('d-none');
+        const drawpadInstance = $("#target").drawpad({ groupId: data.groupId });
+        drawpadInstance.socketInstance(socket);
+      } else {
+        console.warn('groupId from socket not matched with existing groupId.');
+      }
+    }
   }
   $('.dropdown-menu').on('click', '.dropdown-item', function(e) {
     e.preventDefault();
@@ -128,17 +171,15 @@ $(function () {
     $(".instructions").addClass('d-none').text('');
     user.id = user.id || Math.random().toString(36).substring(2);
     groupId = $("#uniqueGameCode").attr('data-groupId');
-    console.log(user.name + '--' + user.id + '---' + groupId);
     socket.emit('join group', { ...user, groupId });
   });
 
   $('.start-game').on('click', function(e) {
     e.preventDefault();
-    $("#login, #lobby").addClass('d-none');
-    $("#board").removeClass('d-none');
-    const drawpadInstance = $("#target").drawpad({ groupId });
-    drawpadInstance.socketInstance(socket);
-    // this.renderProfiles(data.groups);
+    groupId = $("#uniqueGameCode").attr('data-groupId');
+    if (groupId && user.id) {
+      socket.emit('start game', { ...user, groupId, settings });
+    }
   })
 
   $('.publisher-btn').on('click', function(e) {
@@ -149,6 +190,19 @@ $(function () {
       socket.emit('send message', { ...user, groupId, message: chatMessage });
     }
   })
+
+  $('.set-puzzle-word').on('click', function(e){
+    e.preventDefault();
+    settings.puzzle = $('.puzzle-word').val();
+    if (!settings.puzzle || (settings.puzzle && settings.puzzle.trim().length === 0)) {
+      $(".instructions").removeClass('d-none').text('Please enter the word to continue!!');
+      return false
+    }
+    settings.puzzle = settings.puzzle.toLowerCase();
+    groupId = $("#uniqueGameCode").attr('data-groupId');
+    $(this).attr('disabled', true);
+    socket.emit('set puzzle', { ...user, groupId, settings });
+  });
 
   $(window).on('load', function() {
     GUESSMYWORD.init();

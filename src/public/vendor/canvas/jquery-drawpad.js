@@ -184,6 +184,10 @@
       plugin.$canvas.on('mousedown', throttle(handleStartDraw, 50));
       plugin.$canvas.on('mouseup mouseleave', throttle(handleStopDraw, 50));
       plugin.$canvas.on('mousemove', throttle(preHandleDraw, 100));
+
+      plugin.$canvas.on('touchstart', throttle(handleStartDraw, 50));
+      plugin.$canvas.on('touchend touchcancel', throttle(handleStopDraw, 50));
+      plugin.$canvas.on('touchmove', throttle(preHandleDraw, 100));
     };
 
     /* public methods */

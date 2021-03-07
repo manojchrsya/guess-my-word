@@ -1,12 +1,15 @@
 import _ from 'lodash';
 import { profiles } from '../utils/contant';
-export interface Group {
-  id?: string;
+
+enum GameStatus {
+  start,
+  stop,
+  finish,
 }
 export interface User {
   id: string;
   name: string;
-  played: boolean;
+  role: string;
   score?: number;
   groupId?: string;
   socketId?: string;
@@ -15,9 +18,15 @@ export interface User {
 export interface Settings {
   rounds: number;
   timings: number;
-  word: string;
+  puzzle: string;
+  status: GameStatus;
 }
 
+export interface Group {
+  id?: string;
+  users?: User;
+  settings?: Settings;
+}
 export interface Chat extends User {
   message: string;
   senderId: string;
@@ -33,7 +42,9 @@ export default class Socket {
       this.addGroup(socket);
       this.joinGroup(socket);
       this.sendMessage(socket);
+      this.startGame(socket);
       this.drawing(socket);
+      this.setPuzzle(socket);
       // eslint-disable-next-line
       console.log(`socket connected ${socket.id}`);
       this.userDisconnected(socket);
@@ -41,7 +52,11 @@ export default class Socket {
   }
 
   getUniqId(): string {
-    return Math.random().toString(36).substring(2);
+    let uniqId = '';
+    while (uniqId.length === 0) {
+      uniqId = Math.random().toString(36).substring(2);
+    }
+    return uniqId;
   }
 
   profilePicIndex(group: Group): number {
@@ -53,19 +68,21 @@ export default class Socket {
     socket.on('create group', async (data: User) => {
       const groupId = this.getUniqId();
       this.groups[groupId] = {};
-      this.groups[groupId][data.id] = {
+      this.groups[groupId]['users'] = this.groups[groupId]['users'] || ({} as User);
+      this.groups[groupId]['users'][data.id] = {
         id: data.id,
         name: data.name,
         socketId: socket.id,
         score: 0,
-        played: false,
+        role: 'admin',
         profilePic: profiles[this.profilePicIndex(this.groups[groupId])],
       };
 
       // add groupId and userId in socket instance
       socket.groupId = groupId;
       socket.userId = data.id;
-
+      // join this socket in groupId new channel
+      // socket.join(groupId);
       const shareLink = `${process.env.BASE_URL}?code=${groupId}`;
       socket.emit('group added', { groupId, shareLink, groups: this.groups[groupId] });
     });
@@ -78,21 +95,25 @@ export default class Socket {
       // TODO:: if groupId not received then get random groupId from `this.groups`
       if (groupId) {
         this.groups[groupId] = this.groups[groupId] || {};
-        this.groups[groupId][data.id] = {
+        this.groups[groupId]['users'] = this.groups[groupId]['users'] || ({} as User);
+        this.groups[groupId]['users'][data.id] = {
           id: data.id,
           name: data.name,
           socketId: socket.id,
           score: 0,
           played: false,
+          role: 'player',
           profilePic: profiles[this.profilePicIndex(this.groups[groupId])],
         } as User;
         // add groupId and userId in socket instance
         socket.groupId = groupId;
         socket.userId = data.id;
-
+        // join this socket in groupId new channel
+        // socket.join(groupId);
+        // emit group data to all user in groupId channel
         socket.emit('group joined', { groupId, groups: this.groups[groupId], userId: data.id });
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        for (const [_key, user] of Object.entries(this.groups[groupId])) {
+        for (const [_key, user] of Object.entries(this.groups[groupId]['users'])) {
           if (user.socketId !== socket.id) {
             socket
               .to(user.socketId)
@@ -102,6 +123,28 @@ export default class Socket {
       }
     });
   }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  startGame(socket: any): void {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    socket.on('start game', async (data: any) => {
+      const { groupId, id, settings } = data;
+      if (groupId && id) {
+        // apply setting data in current group
+        settings.status = 'start';
+        this.groups[groupId]['settings'] = settings as Settings;
+        socket.emit('start game', { groupId, groups: this.groups[groupId], userId: id });
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        for (const [_key, user] of Object.entries(this.groups[groupId]['users'])) {
+          if (user.socketId !== socket.id) {
+            socket
+              .to(user.socketId)
+              .emit('start game', { groupId, groups: this.groups[groupId], userId: id });
+          }
+        }
+      }
+    });
+  }
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   sendMessage(socket: any): void {
     socket.on('send message', async (data: Chat) => {
@@ -114,7 +157,7 @@ export default class Socket {
         const sender = this.groups[groupId] && this.groups[groupId][data.id];
         socket.emit('new message', { groupId, chat });
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        for (const [_key, user] of Object.entries(this.groups[groupId])) {
+        for (const [_key, user] of Object.entries(this.groups[groupId]['users'])) {
           if (user.socketId !== socket.id) {
             chat.message = `<b>${sender.name}:</b> ${chat.message}`;
             socket.to(user.socketId).emit('new message', { groupId, chat });
@@ -130,7 +173,7 @@ export default class Socket {
       if (groupId && this.groups[groupId]) {
         delete this.groups[groupId][userId];
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        for (const [_key, user] of Object.entries(this.groups[groupId])) {
+        for (const [_key, user] of Object.entries(this.groups[groupId]['users'])) {
           socket.to(user.socketId).emit('group joined', { groupId, groups: this.groups[groupId] });
         }
       }
@@ -145,12 +188,21 @@ export default class Socket {
       if (groupId && event) {
         socket.emit('drawing', { groupId, event });
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        for (const [_key, user] of Object.entries(this.groups[groupId])) {
+        for (const [_key, user] of Object.entries(this.groups[groupId]['users'])) {
           if (user.socketId !== socket.id) {
             socket.to(user.socketId).emit('drawing', { groupId, event });
           }
         }
       }
+    });
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  setPuzzle(socket: any): void {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    socket.on('set puzzle', async (data: any) => {
+      const { groupId, settings } = data;
+      socket.emit('set puzzle', { groupId, settings });
     });
   }
 }
