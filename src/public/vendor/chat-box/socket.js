@@ -36,6 +36,7 @@ $(function () {
       this.groupAdded();
       this.groupJoined();
       this.startGame();
+      this.selectPlayer();
       this.onDisconnect();
       this.newMessage();
       this.setPuzzle();
@@ -76,7 +77,6 @@ $(function () {
     },
     groupJoined() {
       socket.on('group joined', (data) => {
-        console.log('joined', data);
         if (data.userId === user.id) {
           $("#login, #board").addClass('d-none');
           $("#lobby").removeClass('d-none');
@@ -93,6 +93,14 @@ $(function () {
       socket.on('start game', (data) => {
         this.initDrawPad(data);
         this.renderProfiles(data.groups && data.groups.users);
+        socket.emit('select player', { groupId: data.groupId });
+      });
+    },
+    selectPlayer() {
+      socket.on('select player', (data) => {
+        console.log('you have been selected player ', data);
+        $('.puzzle-text').addClass('d-none');
+        $('.puzzle-container').removeClass('d-none');
       });
     },
     newMessage: function() {

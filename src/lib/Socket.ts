@@ -43,6 +43,7 @@ export default class Socket {
       this.joinGroup(socket);
       this.sendMessage(socket);
       this.startGame(socket);
+      this.selectPlayer(socket);
       this.drawing(socket);
       this.setPuzzle(socket);
       // eslint-disable-next-line
@@ -146,6 +147,32 @@ export default class Socket {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  selectPlayer(socket: any): void {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    socket.on('select player', async (data: any) => {
+      const { groupId } = data;
+      if (groupId) {
+        const { users } = this.groups[groupId];
+        const userIds = _.keys(users);
+        // select randome player from group user's
+        const playerId = userIds[Math.floor(Math.random() * userIds.length)];
+        if (this.groups[groupId]['users'][playerId]) {
+          const player = this.groups[groupId]['users'][playerId];
+          socket.to(player.socketId).emit('select player', { groupId, player });
+          const chat = {
+            message: `<b>${player.name}</b> is choosing a word!`,
+          };
+          for (const [_key, user] of Object.entries(this.groups[groupId]['users'])) {
+            if (user.socketId !== player.socketId) {
+              socket.to(user.socketId).emit('new message', { groupId, chat });
+            }
+          }
+        }
+      }
+    });
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   sendMessage(socket: any): void {
     socket.on('send message', async (data: Chat) => {
       const { groupId, message } = data;
@@ -154,7 +181,7 @@ export default class Socket {
           senderId: data.id, // set userId as senderId
           message,
         };
-        const sender = this.groups[groupId] && this.groups[groupId][data.id];
+        const sender = this.groups[groupId] && this.groups[groupId]['users'][data.id];
         socket.emit('new message', { groupId, chat });
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         for (const [_key, user] of Object.entries(this.groups[groupId]['users'])) {
@@ -171,7 +198,7 @@ export default class Socket {
     socket.on('disconnect', async () => {
       const { groupId, userId } = socket;
       if (groupId && this.groups[groupId]) {
-        delete this.groups[groupId][userId];
+        delete this.groups[groupId]['users'][userId];
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         for (const [_key, user] of Object.entries(this.groups[groupId]['users'])) {
           socket.to(user.socketId).emit('group joined', { groupId, groups: this.groups[groupId] });
