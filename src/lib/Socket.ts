@@ -19,6 +19,7 @@ export interface Settings {
   rounds: number;
   timings: number;
   puzzle: string;
+  userId?: string;
   status: GameStatus;
 }
 
@@ -132,6 +133,8 @@ export default class Socket {
       if (groupId && id) {
         // apply setting data in current group
         settings.status = 'start';
+        // set current playerId in setting for easy use at client side
+        settings.userId = id;
         this.groups[groupId]['settings'] = settings as Settings;
         socket.emit('start game', { groupId, groups: this.groups[groupId], userId: id });
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -158,10 +161,15 @@ export default class Socket {
         const playerId = userIds[Math.floor(Math.random() * userIds.length)];
         if (this.groups[groupId]['users'][playerId]) {
           const player = this.groups[groupId]['users'][playerId];
-          socket.to(player.socketId).emit('select player', { groupId, player });
+          if (player.socketId !== socket.id) {
+            socket.to(player.socketId).emit('select player', { groupId, player });
+          } else {
+            socket.emit('select player', { groupId, player });
+          }
           const chat = {
-            message: `<b>${player.name}</b> is choosing a word!`,
+            meta: `<b>${player.name}</b> is choosing a word!`,
           };
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           for (const [_key, user] of Object.entries(this.groups[groupId]['users'])) {
             if (user.socketId !== player.socketId) {
               socket.to(user.socketId).emit('new message', { groupId, chat });
@@ -201,7 +209,7 @@ export default class Socket {
         delete this.groups[groupId]['users'][userId];
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         for (const [_key, user] of Object.entries(this.groups[groupId]['users'])) {
-          socket.to(user.socketId).emit('group joined', { groupId, groups: this.groups[groupId] });
+          socket.to(user.socketId).emit('relaod data', { groupId, groups: this.groups[groupId] });
         }
       }
     });
@@ -214,10 +222,12 @@ export default class Socket {
       const { groupId, event } = data;
       if (groupId && event) {
         socket.emit('drawing', { groupId, event });
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        for (const [_key, user] of Object.entries(this.groups[groupId]['users'])) {
-          if (user.socketId !== socket.id) {
-            socket.to(user.socketId).emit('drawing', { groupId, event });
+        if (this.groups[groupId]) {
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          for (const [_key, user] of Object.entries(this.groups[groupId]['users'])) {
+            if (user.socketId !== socket.id) {
+              socket.to(user.socketId).emit('drawing', { groupId, event });
+            }
           }
         }
       }
@@ -229,7 +239,23 @@ export default class Socket {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     socket.on('set puzzle', async (data: any) => {
       const { groupId, settings } = data;
-      socket.emit('set puzzle', { groupId, settings });
+      if (settings.puzzle) {
+        const maskedPuzzle: string = settings.puzzle
+          .split('')
+          .map((letter: string) => (letter.trim().length > 0 ? '_' : letter))
+          .join('');
+        socket.emit('set puzzle', { groupId, settings });
+        if (this.groups[groupId]) {
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          for (const [_key, user] of Object.entries(this.groups[groupId]['users'])) {
+            if (user.socketId !== socket.id) {
+              socket
+                .to(user.socketId)
+                .emit('set puzzle', { groupId, settings: { ...settings, puzzle: maskedPuzzle } });
+            }
+          }
+        }
+      }
     });
   }
 }

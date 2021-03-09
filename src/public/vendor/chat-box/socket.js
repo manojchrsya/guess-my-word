@@ -21,10 +21,14 @@ $(function () {
     },
     chat: function(data) {
       var ownMessage = data.senderId === user.id ? 'media-chat-reverse' : '';
+      var chatContent = '';
+      if (data.message) {
+        chatContent = `<p>${data.message}</p>`;
+      } else if (data.meta) {
+        chatContent = `<p class="meta"><span class="badge badge-success badge-pill">${data.meta}</div></p>`;
+      }
       return `<div class="media media-chat ${ownMessage}">
-          <div class="media-body">
-              <p>${data.message}</p>
-          </div>
+          <div class="media-body">${chatContent}</div>
       </div>`;
     },
     puzzle: function(letter) {
@@ -40,6 +44,7 @@ $(function () {
       this.onDisconnect();
       this.newMessage();
       this.setPuzzle();
+      this.reloadData();
     },
     startTimer() {
       let second = 0;
@@ -93,7 +98,9 @@ $(function () {
       socket.on('start game', (data) => {
         this.initDrawPad(data);
         this.renderProfiles(data.groups && data.groups.users);
-        socket.emit('select player', { groupId: data.groupId });
+        if (data.userId === user.id) {
+          socket.emit('select player', { groupId: data.groupId });
+        }
       });
     },
     selectPlayer() {
@@ -114,21 +121,23 @@ $(function () {
     },
     setPuzzle: function() {
       socket.on('set puzzle', (data) => {
+        console.log('set puzzle', data);
         if (data.settings && data.settings.puzzle && data.settings.puzzle.length > 0) {
           const letters = data.settings.puzzle.split('');
           let puzzleText = '';
           letters.forEach(letter => {
-            letter = letter.trim() || '&nbsp;&nbsp;&nbsp;';
+            letter = letter.trim() || '&nbsp;&nbsp;';
             puzzleText += templates.puzzle(letter);
           });
           $('.puzzle-container').addClass('d-none');
           $('.puzzle-text').removeClass('d-none').html(puzzleText);
+          this.startTimer();
         }
       });
     },
     onDisconnect: function() {
       socket.on('disconnect', (data) => {
-        // TODO: implement on disconnect event
+        // TODO: implement reconnect feature
       });
     },
     initDrawPad: function(data) {
@@ -141,7 +150,13 @@ $(function () {
       } else {
         console.warn('groupId from socket not matched with existing groupId.');
       }
-    }
+    },
+    reloadData: function() {
+      socket.on('relaod data', (data) => {
+        console.log('relaod', data);
+        this.renderProfiles(data.groups && data.groups.users);
+      });
+    },
   }
   $('.dropdown-menu').on('click', '.dropdown-item', function(e) {
     e.preventDefault();
