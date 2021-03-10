@@ -1,6 +1,6 @@
 /* eslint-disable */
 $(function () {
-  var socket = io();
+  var socket = io({forceNew: true});
   var user = {};
   var groupId = '';
   var timer = false;

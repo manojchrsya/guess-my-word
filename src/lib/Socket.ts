@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import sanitizeHtml from 'sanitize-html';
 import { profiles } from '../utils/contant';
 
 enum GameStatus {
@@ -187,9 +188,14 @@ export default class Socket {
       if (groupId && message) {
         const chat = {
           senderId: data.id, // set userId as senderId
-          message,
+          message: sanitizeHtml(message),
         };
         const sender = this.groups[groupId] && this.groups[groupId]['users'][data.id];
+        const settings = this.groups[groupId] && this.groups[groupId]['settings'];
+        if (settings.puzzle && chat.message.trim().toLowerCase() === settings.puzzle) {
+          socket.emit('new message', { groupId, chat: { meta: 'You have guessed the word' } });
+        }
+
         socket.emit('new message', { groupId, chat });
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         for (const [_key, user] of Object.entries(this.groups[groupId]['users'])) {
@@ -206,6 +212,8 @@ export default class Socket {
     socket.on('disconnect', async () => {
       const { groupId, userId } = socket;
       if (groupId && this.groups[groupId]) {
+        socket.disconnect();
+        socket.close();
         delete this.groups[groupId]['users'][userId];
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         for (const [_key, user] of Object.entries(this.groups[groupId]['users'])) {
@@ -242,16 +250,21 @@ export default class Socket {
       if (settings.puzzle) {
         const maskedPuzzle: string = settings.puzzle
           .split('')
-          .map((letter: string) => (letter.trim().length > 0 ? '_' : letter))
+          .map((letter: string) => (letter.trim().length > 0 ? '_' : letter.toLowerCase()))
           .join('');
         socket.emit('set puzzle', { groupId, settings });
         if (this.groups[groupId]) {
+          const player = this.groups[groupId]['users'][socket.userId];
+          const chat = {
+            meta: `<b>${player.name}</b> has chosen a word.`,
+          };
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
           for (const [_key, user] of Object.entries(this.groups[groupId]['users'])) {
             if (user.socketId !== socket.id) {
               socket
                 .to(user.socketId)
                 .emit('set puzzle', { groupId, settings: { ...settings, puzzle: maskedPuzzle } });
+              socket.to(user.socketId).emit('new message', { groupId, chat });
             }
           }
         }

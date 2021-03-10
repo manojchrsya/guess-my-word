@@ -34,7 +34,8 @@
     "fastify-formbody": "^5.0.0",
     "fastify-socket.io": "^1.0.2",
     "fluent-json-schema": "^2.0.4",
-    "point-of-view": "^4.13.0"
+    "point-of-view": "^4.13.0",
+    "sanitize-html": "^2.3.2"
   },
   "devDependencies": {
     "@commitlint/cli": "^11.0.0",
