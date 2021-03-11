@@ -47,14 +47,23 @@ $(function () {
       this.reloadData();
     },
     startTimer() {
-      let second = 0;
+      let second = settings.timer;
       let interval = setInterval(() => {
         $('.drawpad-timer').text(second);
-        if (second >= settings.timer) {
+        if (second <= 0) {
+          if (settings.playerId === user.id) {
+            // select new player if timer get completes
+            groupId = $("#uniqueGameCode").attr('data-groupId');
+            socket.emit('show puzzle', { groupId });
+            // select new player after 4 seconds
+            setTimeout(() => {
+              socket.emit('select player', { groupId });
+            }, 4000);
+          }
           console.log('timesss up!!');
           clearInterval(interval);
         }
-        second++;
+        second--;
       }, 1000);
     },
     renderProfiles: function(users) {
@@ -105,9 +114,15 @@ $(function () {
     },
     selectPlayer() {
       socket.on('select player', (data) => {
-        console.log('you have been selected player ', data);
-        $('.puzzle-text').addClass('d-none');
-        $('.puzzle-container').removeClass('d-none');
+        if (user.id === data.player.id) {
+          // update playerId in setting in client side
+          settings.playerId = data.player.id;
+          console.log('you have been selected player ', data);
+          $('.puzzle-word').val('');
+          $('.set-puzzle-word').attr('disabled', false);
+          $('.puzzle-text').addClass('d-none');
+          $('.puzzle-container').removeClass('d-none');
+        }
       });
     },
     newMessage: function() {
@@ -153,7 +168,6 @@ $(function () {
     },
     reloadData: function() {
       socket.on('relaod data', (data) => {
-        console.log('relaod', data);
         this.renderProfiles(data.groups && data.groups.users);
       });
     },
@@ -210,7 +224,8 @@ $(function () {
     var chatMessage = $('.publisher-input').val();
     if (chatMessage && chatMessage.trim().length > 0) {
       groupId = $("#uniqueGameCode").attr('data-groupId');
-      socket.emit('send message', { ...user, groupId, message: chatMessage });
+      var speed = parseInt($('.drawpad-timer').text());
+      socket.emit('send message', { ...user, groupId, message: chatMessage, speed });
     }
   })
 

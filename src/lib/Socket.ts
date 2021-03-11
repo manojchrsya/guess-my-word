@@ -11,6 +11,7 @@ export interface User {
   id: string;
   name: string;
   role: string;
+  guessed?: boolean;
   score?: number;
   groupId?: string;
   socketId?: string;
@@ -21,6 +22,7 @@ export interface Settings {
   timings: number;
   puzzle: string;
   userId?: string;
+  playerId?: string;
   status: GameStatus;
 }
 
@@ -32,6 +34,7 @@ export interface Group {
 export interface Chat extends User {
   message: string;
   senderId: string;
+  speed: number;
 }
 
 export default class Socket {
@@ -48,6 +51,7 @@ export default class Socket {
       this.selectPlayer(socket);
       this.drawing(socket);
       this.setPuzzle(socket);
+      this.showPuzzle(socket);
       // eslint-disable-next-line
       console.log(`socket connected ${socket.id}`);
       this.userDisconnected(socket);
@@ -161,7 +165,11 @@ export default class Socket {
         // select randome player from group user's
         const playerId = userIds[Math.floor(Math.random() * userIds.length)];
         if (this.groups[groupId]['users'][playerId]) {
+          // set guessed variable to false
+          this.groups[groupId]['users'][playerId].guessed = false;
           const player = this.groups[groupId]['users'][playerId];
+          // update playerId in group settings
+          this.groups[groupId]['settings'].playerId = playerId;
           if (player.socketId !== socket.id) {
             socket.to(player.socketId).emit('select player', { groupId, player });
           } else {
@@ -173,6 +181,9 @@ export default class Socket {
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
           for (const [_key, user] of Object.entries(this.groups[groupId]['users'])) {
             if (user.socketId !== player.socketId) {
+              // set guessed variable to false
+              this.groups[groupId]['users'][user.id].guessed = false;
+              socket.to(user.socketId).emit('select player', { groupId, player });
               socket.to(user.socketId).emit('new message', { groupId, chat });
             }
           }
@@ -184,7 +195,7 @@ export default class Socket {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   sendMessage(socket: any): void {
     socket.on('send message', async (data: Chat) => {
-      const { groupId, message } = data;
+      const { groupId, message, speed = 0 } = data;
       if (groupId && message) {
         const chat = {
           senderId: data.id, // set userId as senderId
@@ -192,8 +203,17 @@ export default class Socket {
         };
         const sender = this.groups[groupId] && this.groups[groupId]['users'][data.id];
         const settings = this.groups[groupId] && this.groups[groupId]['settings'];
-        if (settings.puzzle && chat.message.trim().toLowerCase() === settings.puzzle) {
+        if (
+          !sender.guessed &&
+          settings.playerId !== data.id &&
+          settings.puzzle &&
+          chat.message.trim().toLowerCase() === settings.puzzle
+        ) {
           socket.emit('new message', { groupId, chat: { meta: 'You have guessed the word' } });
+          this.groups[groupId]['users'][data.id].score += Math.round(100 / speed) * 10;
+          this.groups[groupId]['users'][data.id].guessed = true;
+          sender.guessed = true;
+          socket.emit('relaod data', { groupId, groups: this.groups[groupId] });
         }
 
         socket.emit('new message', { groupId, chat });
@@ -202,6 +222,15 @@ export default class Socket {
           if (user.socketId !== socket.id) {
             chat.message = `<b>${sender.name}:</b> ${chat.message}`;
             socket.to(user.socketId).emit('new message', { groupId, chat });
+            if (sender.guessed) {
+              socket.to(user.socketId).emit('new message', {
+                groupId,
+                chat: { meta: `${sender.name} has guessed the word.` },
+              });
+              socket
+                .to(user.socketId)
+                .emit('relaod data', { groupId, groups: this.groups[groupId] });
+            }
           }
         }
       }
@@ -254,6 +283,9 @@ export default class Socket {
           .join('');
         socket.emit('set puzzle', { groupId, settings });
         if (this.groups[groupId]) {
+          // update puzzle in group settings
+          this.groups[groupId]['settings'] = this.groups[groupId]['settings'] || ({} as Settings);
+          this.groups[groupId]['settings'].puzzle = settings.puzzle;
           const player = this.groups[groupId]['users'][socket.userId];
           const chat = {
             meta: `<b>${player.name}</b> has chosen a word.`,
@@ -266,6 +298,26 @@ export default class Socket {
                 .emit('set puzzle', { groupId, settings: { ...settings, puzzle: maskedPuzzle } });
               socket.to(user.socketId).emit('new message', { groupId, chat });
             }
+          }
+        }
+      }
+    });
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  showPuzzle(socket: any): void {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    socket.on('show puzzle', async (data: any) => {
+      const { groupId } = data;
+      if (groupId && this.groups[groupId]) {
+        const settings = this.groups[groupId]['settings'];
+        const chat = {
+          meta: `word was ${settings.puzzle}`,
+        };
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        for (const [_key, user] of Object.entries(this.groups[groupId]['users'])) {
+          if (user.socketId !== socket.id) {
+            socket.to(user.socketId).emit('new message', { groupId, chat });
           }
         }
       }
