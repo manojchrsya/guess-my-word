@@ -51,6 +51,7 @@ $(function () {
       let interval = setInterval(() => {
         $('.drawpad-timer').text(second);
         if (second <= 0) {
+          console.log(settings.playerId + '----' + user.id);
           if (settings.playerId === user.id) {
             // select new player if timer get completes
             groupId = $("#uniqueGameCode").attr('data-groupId');
@@ -105,6 +106,11 @@ $(function () {
     },
     startGame() {
       socket.on('start game', (data) => {
+        // update settings from admin user
+        if (data.groups && data.groups.settings) {
+          Object.assign(settings, data.groups.settings);
+        }
+        console.log(settings);
         this.initDrawPad(data);
         this.renderProfiles(data.groups && data.groups.users);
         if (data.userId === user.id) {
@@ -114,9 +120,9 @@ $(function () {
     },
     selectPlayer() {
       socket.on('select player', (data) => {
+        // update playerId in setting in client side
+        settings.playerId = data.player && data.player.id;
         if (user.id === data.player.id) {
-          // update playerId in setting in client side
-          settings.playerId = data.player.id;
           console.log('you have been selected player ', data);
           $('.puzzle-word').val('');
           $('.set-puzzle-word').attr('disabled', false);
@@ -128,7 +134,7 @@ $(function () {
     newMessage: function() {
       socket.on('new message', (data) => {
         if (data.chat) {
-          $chatContainer.append(templates.chat(data.chat)).hide().fadeIn();
+          $chatContainer.append(templates.chat(data.chat));
           $('.publisher-input').val('');
           $chatContainer.scrollTop($chatContainer.height());
         }
@@ -224,7 +230,7 @@ $(function () {
     var chatMessage = $('.publisher-input').val();
     if (chatMessage && chatMessage.trim().length > 0) {
       groupId = $("#uniqueGameCode").attr('data-groupId');
-      var speed = parseInt($('.drawpad-timer').text());
+      var speed = parseInt(settings.timer - parseInt($('.drawpad-timer').text()));
       socket.emit('send message', { ...user, groupId, message: chatMessage, speed });
     }
   })
