@@ -4,7 +4,7 @@ $(function () {
   var user = {};
   var groupId = '';
   var timer = false;
-  var settings = {rounds: 1, timer: 30};
+  var settings = {rounds: 1, timer: 30, playerId: ''};
   var $chatContainer = $('#chat-content');
   const templates = {
     profile: function(user) {
@@ -47,11 +47,10 @@ $(function () {
       this.reloadData();
     },
     startTimer() {
-      let second = settings.timer;
-      let interval = setInterval(() => {
-        $('.drawpad-timer').text(second);
-        if (second <= 0) {
-          console.log(settings.playerId + '----' + user.id);
+      this.second = settings.timer;
+      this.interval = setInterval(() => {
+        $('.drawpad-timer').text(this.second);
+        if (this.second <= 0) {
           if (settings.playerId === user.id) {
             // select new player if timer get completes
             groupId = $("#uniqueGameCode").attr('data-groupId');
@@ -62,9 +61,9 @@ $(function () {
             }, 4000);
           }
           console.log('timesss up!!');
-          clearInterval(interval);
+          clearInterval(this.interval);
         }
-        second--;
+        this.second--;
       }, 1000);
     },
     renderProfiles: function(users) {
@@ -110,7 +109,6 @@ $(function () {
         if (data.groups && data.groups.settings) {
           Object.assign(settings, data.groups.settings);
         }
-        console.log(settings);
         this.initDrawPad(data);
         this.renderProfiles(data.groups && data.groups.users);
         if (data.userId === user.id) {
@@ -142,7 +140,6 @@ $(function () {
     },
     setPuzzle: function() {
       socket.on('set puzzle', (data) => {
-        console.log('set puzzle', data);
         if (data.settings && data.settings.puzzle && data.settings.puzzle.length > 0) {
           const letters = data.settings.puzzle.split('');
           let puzzleText = '';
@@ -174,7 +171,16 @@ $(function () {
     },
     reloadData: function() {
       socket.on('relaod data', (data) => {
+        // update settings from admin user
+        if (data.groups && data.groups.settings) {
+          Object.assign(settings, data.groups.settings);
+        }
         this.renderProfiles(data.groups && data.groups.users);
+        if (data.finish && this.interval) {
+          // set timer value to 0 so that current round can finish
+          this.second = 0;
+          $('.drawpad-timer').text('0');
+        }
       });
     },
   }

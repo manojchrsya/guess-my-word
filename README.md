@@ -10,7 +10,7 @@ Share your drawing or stories with anyone in real time.
 7. disable drawpad for other than admin
 8. poll admin player if admin user get disconnect
 9. simplify code base for socket.js server side
-10. end game if every player has guess the word exept admin -- wip
+10. end game if every player has guess the word exept selected player -- done
 
 ### References
 

@@ -160,24 +160,26 @@ export default class Socket {
     socket.on('select player', async (data: any) => {
       const { groupId } = data;
       if (groupId) {
-        const { users } = this.groups[groupId];
+        const { users } = this.groups[groupId] || {};
         const userIds = _.keys(users);
         // select randome player from group user's
         const playerId = userIds[Math.floor(Math.random() * userIds.length)];
         if (this.groups[groupId]['users'][playerId]) {
-          // set guessed variable to false
+          // set guessed variable to false'
           this.groups[groupId]['users'][playerId].guessed = false;
           const player = this.groups[groupId]['users'][playerId];
+          const chat = {
+            meta: `<b>${player.name}</b> is choosing a word!`,
+          };
           // update playerId in group settings
           this.groups[groupId]['settings'].playerId = playerId;
           if (player.socketId !== socket.id) {
             socket.to(player.socketId).emit('select player', { groupId, player });
           } else {
             socket.emit('select player', { groupId, player });
+            socket.emit('new message', { groupId, chat });
           }
-          const chat = {
-            meta: `<b>${player.name}</b> is choosing a word!`,
-          };
+
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
           for (const [_key, user] of Object.entries(this.groups[groupId]['users'])) {
             if (user.socketId !== player.socketId) {
@@ -201,6 +203,7 @@ export default class Socket {
           senderId: data.id, // set userId as senderId
           message: sanitizeHtml(message),
         };
+        let finish = false;
         const sender = this.groups[groupId] && this.groups[groupId]['users'][data.id];
         const settings = this.groups[groupId] && this.groups[groupId]['settings'];
         if (
@@ -213,7 +216,11 @@ export default class Socket {
           this.groups[groupId]['users'][data.id].score += Math.round(100 / speed) * 10;
           this.groups[groupId]['users'][data.id].guessed = true;
           sender.guessed = true;
-          socket.emit('relaod data', { groupId, groups: this.groups[groupId] });
+          // check if each player has guess the word then finish game
+          finish = !_.flatMap(this.groups[groupId]['users']).some(
+            (user: User) => !user.guessed && user.id != settings.playerId,
+          );
+          socket.emit('relaod data', { groupId, groups: this.groups[groupId], finish });
         }
 
         socket.emit('new message', { groupId, chat });
@@ -229,7 +236,7 @@ export default class Socket {
               });
               socket
                 .to(user.socketId)
-                .emit('relaod data', { groupId, groups: this.groups[groupId] });
+                .emit('relaod data', { groupId, groups: this.groups[groupId], finish });
             }
           }
         }
@@ -277,7 +284,7 @@ export default class Socket {
     socket.on('set puzzle', async (data: any) => {
       const { groupId, settings } = data;
       if (settings.puzzle) {
-        const maskedPuzzle: string = settings.puzzle
+        const maskedPuzzle: string = sanitizeHtml(settings.puzzle)
           .split('')
           .map((letter: string) => (letter.trim().length > 0 ? '_' : letter.toLowerCase()))
           .join('');
@@ -285,7 +292,7 @@ export default class Socket {
         if (this.groups[groupId]) {
           // update puzzle in group settings
           this.groups[groupId]['settings'] = this.groups[groupId]['settings'] || ({} as Settings);
-          this.groups[groupId]['settings'].puzzle = settings.puzzle;
+          this.groups[groupId]['settings'].puzzle = sanitizeHtml(settings.puzzle);
           const player = this.groups[groupId]['users'][socket.userId];
           const chat = {
             meta: `<b>${player.name}</b> has chosen a word.`,
