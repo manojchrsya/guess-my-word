@@ -178,16 +178,8 @@
       $element.append(createCanvas());
       $element.append(createToolbox());
       resizeCanvas();
-
-      $reset.on('click', throttle(resetDrawPad, 100));
-
-      plugin.$canvas.on('mousedown', throttle(handleStartDraw, 50));
-      plugin.$canvas.on('mouseup mouseleave', throttle(handleStopDraw, 50));
-      plugin.$canvas.on('mousemove', throttle(preHandleDraw, 100));
-
-      plugin.$canvas.on('touchstart', throttle(handleStartDraw, 50));
-      plugin.$canvas.on('touchend touchcancel', throttle(handleStopDraw, 50));
-      plugin.$canvas.on('touchmove', throttle(preHandleDraw, 100));
+      // register mouse or touch events;
+      plugin.events('off');
     };
 
     /* public methods */
@@ -203,6 +195,17 @@
 
     plugin.resize = function () {
       resizeCanvas();
+    };
+
+    plugin.events = function (action) {
+      $reset[action]('click', throttle(resetDrawPad, 100));
+      plugin.$canvas[action]('mousedown', throttle(handleStartDraw, 50));
+      plugin.$canvas[action]('mouseup mouseleave', throttle(handleStopDraw, 50));
+      plugin.$canvas[action]('mousemove', throttle(preHandleDraw, 100));
+
+      plugin.$canvas[action]('touchstart', throttle(handleStartDraw, 50));
+      plugin.$canvas[action]('touchend touchcancel', throttle(handleStopDraw, 50));
+      plugin.$canvas[action]('touchmove', throttle(preHandleDraw, 100));
     };
 
     plugin.socketInstance = (socket) => {
