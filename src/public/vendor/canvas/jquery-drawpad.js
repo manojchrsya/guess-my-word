@@ -198,14 +198,25 @@
     };
 
     plugin.events = function (action) {
-      $reset[action]('click', throttle(resetDrawPad, 100));
-      plugin.$canvas[action]('mousedown', throttle(handleStartDraw, 50));
-      plugin.$canvas[action]('mouseup mouseleave', throttle(handleStopDraw, 50));
-      plugin.$canvas[action]('mousemove', throttle(preHandleDraw, 100));
+      if (action === 'on') {
+        $reset[action]('click', throttle(resetDrawPad, 100));
+        plugin.$canvas[action]('mousedown', throttle(handleStartDraw, 50));
+        plugin.$canvas[action]('mouseup mouseleave', throttle(handleStopDraw, 50));
+        plugin.$canvas[action]('mousemove', throttle(preHandleDraw, 100));
 
-      plugin.$canvas[action]('touchstart', throttle(handleStartDraw, 50));
-      plugin.$canvas[action]('touchend touchcancel', throttle(handleStopDraw, 50));
-      plugin.$canvas[action]('touchmove', throttle(preHandleDraw, 100));
+        plugin.$canvas[action]('touchstart', throttle(handleStartDraw, 50));
+        plugin.$canvas[action]('touchend touchcancel', throttle(handleStopDraw, 50));
+        plugin.$canvas[action]('touchmove', throttle(preHandleDraw, 100));
+      } else {
+        $reset[action]('click');
+        plugin.$canvas[action]('mousedown');
+        plugin.$canvas[action]('mouseup mouseleave');
+        plugin.$canvas[action]('mousemove');
+
+        plugin.$canvas[action]('touchstart');
+        plugin.$canvas[action]('touchend touchcancel');
+        plugin.$canvas[action]('touchmove');
+      }
     };
 
     plugin.socketInstance = (socket) => {

@@ -55,11 +55,6 @@ $(function () {
             // select new player if timer get completes
             groupId = $("#uniqueGameCode").attr('data-groupId');
             socket.emit('show puzzle', { groupId });
-            // deregister mouse or touch events and clear drawpad;
-            if (this.drawpadInstance) {
-              this.drawpadInstance.events('unbind');
-              this.drawpadInstance.clear();
-            }
             // select new player after 4 seconds
             setTimeout(() => {
               socket.emit('select player', { groupId });
@@ -127,13 +122,13 @@ $(function () {
         settings.playerId = data.player && data.player.id;
         if (user.id === data.player.id) {
           console.log('you have been selected player ', data);
-          action = 'on';
           $('.puzzle-word').val('');
           $('.set-puzzle-word').attr('disabled', false);
           $('.puzzle-text').addClass('d-none');
           $('.puzzle-container').removeClass('d-none');
           // register mouse or touch events;
           if (this.drawpadInstance) {
+            this.drawpadInstance.clear();
             this.drawpadInstance.events('on');
           }
         }
@@ -166,6 +161,7 @@ $(function () {
     onDisconnect: function() {
       socket.on('disconnect', (data) => {
         // TODO: implement reconnect feature
+        socket.disconnect();
       });
     },
     initDrawPad: function(data) {
@@ -190,6 +186,11 @@ $(function () {
           // set timer value to 0 so that current round can finish
           this.second = 0;
           $('.drawpad-timer').text('0');
+          // clear drawpad and register mouse or touch events;
+          if (this.drawpadInstance) {
+            this.drawpadInstance.clear();
+            this.drawpadInstance.events('off');
+          }
         }
       });
     },
@@ -230,6 +231,7 @@ $(function () {
     $(".instructions").addClass('d-none').text('');
     user.id = user.id || Math.random().toString(36).substring(2);
     groupId = $("#uniqueGameCode").attr('data-groupId');
+    console.log('---' + socket.id);
     socket.emit('join group', { ...user, groupId });
   });
 

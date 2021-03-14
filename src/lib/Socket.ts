@@ -135,7 +135,7 @@ export default class Socket {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     socket.on('start game', async (data: any) => {
       const { groupId, id, settings } = data;
-      if (groupId && id) {
+      if (groupId && id && this.groups[groupId]) {
         // apply setting data in current group
         settings.status = 'start';
         // set current playerId in setting for easy use at client side
@@ -204,8 +204,9 @@ export default class Socket {
           message: sanitizeHtml(message),
         };
         let finish = false;
-        const sender = this.groups[groupId] && this.groups[groupId]['users'][data.id];
-        const settings = this.groups[groupId] && this.groups[groupId]['settings'];
+        const sender = (this.groups[groupId] && this.groups[groupId]['users'][data.id]) || {};
+        const settings =
+          (this.groups[groupId] && this.groups[groupId]['settings']) || ({} as Settings);
         if (
           !sender.guessed &&
           settings.playerId !== data.id &&
@@ -227,8 +228,8 @@ export default class Socket {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         for (const [_key, user] of Object.entries(this.groups[groupId]['users'])) {
           if (user.socketId !== socket.id) {
-            chat.message = `<b>${sender.name}:</b> ${chat.message}`;
-            socket.to(user.socketId).emit('new message', { groupId, chat });
+            const message = `<b>${sender.name}:</b> ${chat.message}`;
+            socket.to(user.socketId).emit('new message', { groupId, chat: { ...chat, message } });
             if (sender.guessed) {
               socket.to(user.socketId).emit('new message', {
                 groupId,
@@ -249,7 +250,6 @@ export default class Socket {
       const { groupId, userId } = socket;
       if (groupId && this.groups[groupId]) {
         socket.disconnect();
-        socket.close();
         delete this.groups[groupId]['users'][userId];
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         for (const [_key, user] of Object.entries(this.groups[groupId]['users'])) {
