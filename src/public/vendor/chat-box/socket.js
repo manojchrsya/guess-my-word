@@ -1,9 +1,8 @@
 /* eslint-disable */
-$(function () {
+$(window).on('load', function() {
   var socket = io({forceNew: true});
   var user = {};
   var groupId = '';
-  var timer = false;
   var settings = {rounds: 1, timer: 30, playerId: ''};
   var $chatContainer = $('#chat-content');
   const templates = {
@@ -51,6 +50,11 @@ $(function () {
       this.interval = setInterval(() => {
         $('.drawpad-timer').text(this.second);
         if (this.second <= 0) {
+          // deregister mouse or touch events;
+          if (this.drawpadInstance) {
+            this.drawpadInstance.clear();
+            this.drawpadInstance.events('off');
+          }
           if (settings.playerId === user.id) {
             // select new player if timer get completes
             groupId = $("#uniqueGameCode").attr('data-groupId');
@@ -112,6 +116,8 @@ $(function () {
         this.initDrawPad(data);
         this.renderProfiles(data.groups && data.groups.users);
         if (data.userId === user.id) {
+          // set admin player role
+          user.role = 'admin';
           socket.emit('select player', { groupId: data.groupId });
         }
       });
@@ -145,6 +151,10 @@ $(function () {
     },
     setPuzzle: function() {
       socket.on('set puzzle', (data) => {
+        // update settings from admin user
+        if (data.settings && data.settings) {
+          Object.assign(settings, data.settings);
+        }
         if (data.settings && data.settings.puzzle && data.settings.puzzle.length > 0) {
           const letters = data.settings.puzzle.split('');
           let puzzleText = '';
@@ -161,7 +171,12 @@ $(function () {
     onDisconnect: function() {
       socket.on('disconnect', (data) => {
         // TODO: implement reconnect feature
-        socket.disconnect();
+        // socket.disconnect();
+        console.log('reconnecting user to group...');
+        groupId = $("#uniqueGameCode").attr('data-groupId');
+        if (groupId && user && user.id) {
+          socket.emit('join group', { ...user, groupId });
+        }
       });
     },
     initDrawPad: function(data) {
@@ -231,7 +246,6 @@ $(function () {
     $(".instructions").addClass('d-none').text('');
     user.id = user.id || Math.random().toString(36).substring(2);
     groupId = $("#uniqueGameCode").attr('data-groupId');
-    console.log('---' + socket.id);
     socket.emit('join group', { ...user, groupId });
   });
 
@@ -266,7 +280,6 @@ $(function () {
     socket.emit('set puzzle', { ...user, groupId, settings });
   });
 
-  $(window).on('load', function() {
-    GUESSMYWORD.init();
-  })
+  // initialise guess my word
+  GUESSMYWORD.init();
 });

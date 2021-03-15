@@ -109,7 +109,7 @@ export default class Socket {
           socketId: socket.id,
           score: 0,
           played: false,
-          role: 'player',
+          role: data.role || 'player',
           profilePic: profiles[this.profilePicIndex(this.groups[groupId])],
         } as User;
         // add groupId and userId in socket instance
