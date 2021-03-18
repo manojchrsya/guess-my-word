@@ -2,6 +2,17 @@
 $(window).on('load', function() {
   var socket = io({forceNew: true});
   var user = {};
+  // get user detail from storage
+  var __user = Storage().getItem('__user');
+  if (__user) {
+    try {
+      __user = JSON.parse(__user);
+      user.name = __user.name || '';
+      user.id = __user.id || '';
+    } catch (e) {
+      console.warn('user detail not available.');
+    }
+  }
   var groupId = '';
   var settings = {rounds: 1, timer: 30, playerId: ''};
   var $chatContainer = $('#chat-content');
@@ -36,6 +47,7 @@ $(window).on('load', function() {
   };
   var GUESSMYWORD = {
     init: function() {
+      this.setUserName();
       this.groupAdded();
       this.groupJoined();
       this.startGame();
@@ -44,6 +56,11 @@ $(window).on('load', function() {
       this.newMessage();
       this.setPuzzle();
       this.reloadData();
+    },
+    setUserName() {
+      if (user && user.id) {
+        $('.username').val(user.name);
+      }
     },
     startTimer() {
       this.second = settings.timer;
@@ -246,6 +263,8 @@ $(window).on('load', function() {
     $(".instructions").addClass('d-none').text('');
     user.id = user.id || Math.random().toString(36).substring(2);
     groupId = $("#uniqueGameCode").attr('data-groupId');
+    // set user info in localstorage
+    Storage().setItem('__user', JSON.stringify(user));
     socket.emit('join group', { ...user, groupId });
   });
 
@@ -253,10 +272,17 @@ $(window).on('load', function() {
     e.preventDefault();
     groupId = $("#uniqueGameCode").attr('data-groupId');
     if (groupId && user.id) {
+      // set user info in localstorage
+      Storage().setItem('__user', JSON.stringify(user));
       socket.emit('start game', { ...user, groupId, settings });
     }
   })
-
+  $(".publisher-input").on('keypress', function (e) {
+    if (e.which === 13) {
+      e.preventDefault();
+      $('.publisher-btn').trigger('click');
+    }
+  });
   $('.publisher-btn').on('click', function(e) {
     e.preventDefault();
     var chatMessage = $('.publisher-input').val();
@@ -280,6 +306,31 @@ $(window).on('load', function() {
     socket.emit('set puzzle', { ...user, groupId, settings });
   });
 
+  function Storage(storageType) {
+    var storage = {
+      type: storageType || "localStorage",
+      setItem: (key, value) => {
+        try {
+          window[storage.type].setItem(key, value);
+        } catch (err) {
+          console.warn(err.message);
+        }
+      },
+      getItem: (key) => {
+        if (window[storage.type].getItem(key)) {
+          return window[storage.type].getItem(key);
+        }
+        return false;
+      },
+      removeItem: (key) => {
+        if (window[storage.type].getItem(key) || window[storage.type].getItem(key) == null) {
+          return window[storage.type].removeItem(key);
+        }
+        return false;
+      }
+    };
+    return storage;
+  }
   // initialise guess my word
   GUESSMYWORD.init();
 });

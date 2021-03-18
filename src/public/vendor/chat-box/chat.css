@@ -92,7 +92,6 @@ h4.card-title {
 }
 
 .media-chat {
-  padding-right: 64px;
   margin-bottom: 0
 }
 
@@ -188,15 +187,14 @@ h4.card-title {
 
 .media-chat.media-chat-reverse {
   padding-right: 12px;
-  padding-left: 64px;
   -webkit-box-orient: horizontal;
   -webkit-box-direction: reverse;
   flex-direction: row-reverse
 }
 
 .media-chat {
-  padding-right: 64px;
-  margin-bottom: 0
+  margin-bottom: 0;
+  text-align: left;
 }
 
 .media {

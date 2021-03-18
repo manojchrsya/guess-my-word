@@ -13,8 +13,8 @@ Share your drawing or stories with anyone in real time.
 10. end game if every player has guess the word exept selected player -- done
 11. fix multi user name display in chat box -- done
 12. implement round feature
-13. added how to play section in landing page
-14. save user info in localstorage -- wip
+13. added how to play section in landing page -- wip
+14. save user info in localstorage -- done
 ### References
 
 https://randomword.com/noun
