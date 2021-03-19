@@ -11,7 +11,8 @@
     "lint:fix": "eslint . --fix",
     "build": "tsc && node build/server.js",
     "start": "node build",
-    "dev": "nodemon"
+    "dev": "nodemon",
+    "deploy": "git add . && git commit -m Heroku && git push heroku master"
   },
   "repository": {
     "type": "git",
