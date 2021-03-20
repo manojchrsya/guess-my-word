@@ -10,7 +10,7 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "build": "tsc && node build/server.js",
-    "start": "node build",
+    "start": "npm run build",
     "dev": "nodemon",
     "deploy": "git add . && git commit -m Heroku && git push heroku master"
   },
