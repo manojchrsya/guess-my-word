@@ -11,6 +11,7 @@
     "sourceMap": true,
     "outDir": "build",
     "baseUrl": "src",
+    "rootDir": "./src",
     "paths": {
       "@lib/*": ["lib/*"]
     }

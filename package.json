@@ -6,14 +6,16 @@
   "directories": {
     "test": "test"
   },
-  "engines" : {
-    "node" : "12.x"
+  "engines": {
+    "node": "10.x"
   },
   "scripts": {
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "build": "tsc && node build/server.js",
-    "start": "npm run build",
+    "build": "tsc && npm run copy-files",
+    "copy-files": "copyfiles -u 1 src/views/* src/public/* dist/",
+    "start": "nodemon",
+    "postinstall": "tsc && npm run copy-files",
     "dev": "nodemon",
     "deploy": "git add . && git commit -m Heroku && git push heroku master"
   },
