@@ -12,11 +12,8 @@
   "scripts": {
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "build": "tsc && npm run copy-files",
-    "copy-files": "copyfiles -u 1 src/views/* src/public/* dist/",
     "start": "nodemon",
-    "dev": "nodemon",
-    "deploy": "git add . && git commit -m Heroku && git push heroku master"
+    "dev": "nodemon"
   },
   "repository": {
     "type": "git",
