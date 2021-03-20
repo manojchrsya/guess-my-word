@@ -15,7 +15,6 @@
     "build": "tsc && npm run copy-files",
     "copy-files": "copyfiles -u 1 src/views/* src/public/* dist/",
     "start": "nodemon",
-    "postinstall": "tsc && npm run copy-files",
     "dev": "nodemon",
     "deploy": "git add . && git commit -m Heroku && git push heroku master"
   },
