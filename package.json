@@ -16,8 +16,7 @@
     "build": "tsc && npm run copy-files",
     "copy-files": "cp -r ./src/views ./src/public ./build/",
     "start": "node build/server.js",
-    "dev": "nodemon",
-    "deploy": "git add . && git commit -m Heroku && git push heroku master"
+    "dev": "nodemon"
   },
   "repository": {
     "type": "git",

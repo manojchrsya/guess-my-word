@@ -58,3 +58,5 @@ profile*
 *flamegraph*
 
 .env
+
+tsconfig.tsbuildinfo
