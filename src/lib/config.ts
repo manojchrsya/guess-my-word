@@ -1,9 +1,13 @@
 import envSchema from 'env-schema';
+import fs from 'fs';
 import S from 'fluent-json-schema';
 
 export default function loadConfig(): void {
-  const result = require('dotenv').config({ silent: true });
-
+  let envPath: string = [process.cwd(), '.env'].join('/');
+  if (!fs.existsSync(envPath)) {
+    envPath = [process.cwd(), 'env.sample'].join('/');
+  }
+  const result = require('dotenv').config({ path: envPath });
   if (result.error) {
     throw new Error(result.error);
   }
