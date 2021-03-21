@@ -6,9 +6,6 @@
   "directories": {
     "test": "test"
   },
-  "engines": {
-    "node": "10.x"
-  },
   "scripts": {
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
