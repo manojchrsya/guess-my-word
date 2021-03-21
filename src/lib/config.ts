@@ -2,12 +2,7 @@ import envSchema from 'env-schema';
 import S from 'fluent-json-schema';
 
 export default function loadConfig(): void {
-  const result = require('dotenv').config({
-    NODE_ENV: process.env.NODE_ENV,
-    HOST: process.env.HOST,
-    PORT: process.env.PORT,
-    BASE_URL: process.env.BASE_URL,
-  });
+  const result = require('dotenv').config({ silent: true });
 
   if (result.error) {
     throw new Error(result.error);
