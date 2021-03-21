@@ -1,8 +1,8 @@
 {
   "name": "guess-my-word",
   "version": "1.0.0",
-  "description": "Share your drawing or stories with anyone in real time.",
-  "main": "build/app.js",
+  "description": "draw your imagination and let others guess.",
+  "main": "build/server.js",
   "directories": {
     "test": "test"
   },
@@ -12,8 +12,13 @@
   "scripts": {
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "start": "nodemon",
-    "dev": "nodemon"
+    "clean": "rm -rf ./build",
+    "build": "tsc && npm run copy-files",
+    "copy-files": "cp -r ./src/views ./src/public ./build/",
+    "start": "npm run build && node build/server.js",
+    "postinstall": "npm run build",
+    "dev": "nodemon",
+    "deploy": "git add . && git commit -m Heroku && git push heroku master"
   },
   "repository": {
     "type": "git",
