@@ -15,7 +15,7 @@
     "clean": "rm -rf ./build",
     "build": "tsc && npm run copy-files",
     "copy-files": "cp -r ./src/views ./src/public ./build/",
-    "start": "npm run build && node build/server.js",
+    "start": "node build/server.js",
     "postinstall": "npm run build",
     "dev": "nodemon",
     "deploy": "git add . && git commit -m Heroku && git push heroku master"
