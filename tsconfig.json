@@ -12,6 +12,7 @@
     "outDir": "build",
     "baseUrl": "src",
     "rootDir": "./src",
+    "skipLibCheck": true,
     "paths": {
       "@lib/*": ["lib/*"]
     }
