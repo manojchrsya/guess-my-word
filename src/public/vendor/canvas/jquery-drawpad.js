@@ -168,6 +168,12 @@
           drawing,
           lineStyle,
         };
+        // update offset value for touch event
+        if (!eventData.offsetX && event.touches && event.touches.length > 0) {
+          var rect = event.target.getBoundingClientRect();
+          eventData.offsetX = event.touches[0].clientX - rect.left;
+          eventData.offsetY = event.touches[0].clientY - rect.top;
+        }
         plugin.socket.emit('drawing', { event: eventData, groupId: plugin.settings.groupId });
       } else {
         handleDraw(event);

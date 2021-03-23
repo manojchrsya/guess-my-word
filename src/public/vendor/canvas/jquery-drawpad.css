@@ -1,5 +1,5 @@
-/* 
-	cnbilgin 
+/*
+	cnbilgin
 	https://github.com/cnbilgin/jquery-drawpad
 	v 0.1
 */
@@ -18,7 +18,8 @@
 
 .drawpad > canvas {
 	width: 100%;
-	height: 100%;
+  height: 100%;
+  touch-action: none;
 }
 .drawpad .drawpad-toolbox {
 	width: 25px;
