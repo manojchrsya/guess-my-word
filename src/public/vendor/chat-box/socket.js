@@ -14,7 +14,7 @@ $(window).on('load', function() {
     }
   }
   var groupId = '';
-  var settings = {rounds: 1, timer: 30, playerId: ''};
+  var settings = {rounds: 1, timer: 30, playerId: '', currentRound: 1};
   var $chatContainer = $('#chat-content');
   const templates = {
     profile: function(user) {
@@ -43,6 +43,9 @@ $(window).on('load', function() {
     },
     puzzle: function(letter) {
       return `<a class="d-inline m-1 h3" href="#">${letter}</a>`
+    },
+    round: function(data) {
+      return `Round ${data.currentRound} of ${data.rounds}`;
     }
   };
   var GUESSMYWORD = {
@@ -97,6 +100,10 @@ $(window).on('load', function() {
       $('.players').html(profileString);
       $('ul.board-players').html(boardPlayers);
     },
+    renderRound: function(data) {
+      let roundString = templates.round(data);
+      $('.rounds').html(roundString);
+    },
     groupAdded() {
       socket.on('group added', (data) => {
         if (data.shareLink) {
@@ -129,6 +136,8 @@ $(window).on('load', function() {
         // update settings from admin user
         if (data.groups && data.groups.settings) {
           Object.assign(settings, data.groups.settings);
+          // update round info in screen
+          this.renderRound(data.groups.settings);
         }
         this.initDrawPad(data);
         this.renderProfiles(data.groups && data.groups.users);
@@ -143,6 +152,10 @@ $(window).on('load', function() {
       socket.on('select player', (data) => {
         // update playerId in setting in client side
         settings.playerId = data.player && data.player.id;
+        // update round info in screen
+        if (data.groups && data.groups.settings) {
+          this.renderRound(data.groups.settings);
+        }
         if (user.id === data.player.id) {
           console.log('you have been selected player ', data);
           $('.puzzle-word').val('');
@@ -212,6 +225,8 @@ $(window).on('load', function() {
         // update settings from admin user
         if (data.groups && data.groups.settings) {
           Object.assign(settings, data.groups.settings);
+          // update round info in screen
+          this.renderRound(data.groups.settings);
         }
         this.renderProfiles(data.groups && data.groups.users);
         if (data.finish && this.interval) {

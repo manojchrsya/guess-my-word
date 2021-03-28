@@ -19,6 +19,7 @@ export interface User {
 }
 export interface Settings {
   rounds: number;
+  currentRound: number;
   timings: number;
   puzzle: string;
   userId?: string;
@@ -81,6 +82,8 @@ export default class Socket {
         name: data.name,
         socketId: socket.id,
         score: 0,
+        played: false,
+        guessed: false,
         role: 'admin',
         profilePic: profiles[this.profilePicIndex(this.groups[groupId])],
       };
@@ -109,6 +112,7 @@ export default class Socket {
           socketId: socket.id,
           score: 0,
           played: false,
+          guessed: false,
           role: data.role || 'player',
           profilePic: profiles[this.profilePicIndex(this.groups[groupId])],
         } as User;
@@ -160,13 +164,31 @@ export default class Socket {
     socket.on('select player', async (data: any) => {
       const { groupId } = data;
       if (groupId) {
-        const { users } = this.groups[groupId] || {};
-        const userIds = _.keys(users);
+        const { users, settings } = this.groups[groupId] || {};
+        // filter userIds from users object who have not been marked as played
+        let userIds = _.keys(users).filter((userId: string) => !users[userId].played);
+        if (userIds.length === 0) {
+          if (settings.currentRound < settings.rounds) {
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            for (const [_key, user] of Object.entries(this.groups[groupId]['users'])) {
+              this.groups[groupId]['users'][user.id].played = false;
+            }
+            this.groups[groupId]['settings'].currentRound += 1;
+            userIds = _.keys(users);
+          } else {
+            console.log('game finishedd....');
+          }
+        }
+        console.log(userIds);
+        console.log(settings);
+        // TODO: handle if game is over
         // select randome player from group user's
         const playerId = userIds[Math.floor(Math.random() * userIds.length)];
         if (this.groups[groupId]['users'][playerId]) {
           // set guessed variable to false'
           this.groups[groupId]['users'][playerId].guessed = false;
+          // set played value as true to avoid choosing same player multiple times
+          this.groups[groupId]['users'][playerId].played = true;
           const player = this.groups[groupId]['users'][playerId];
           const chat = {
             meta: `<b>${player.name}</b> is choosing a word!`,
@@ -174,19 +196,27 @@ export default class Socket {
           // update playerId in group settings
           this.groups[groupId]['settings'].playerId = playerId;
           if (player.socketId !== socket.id) {
-            socket.to(player.socketId).emit('select player', { groupId, player });
+            socket
+              .to(player.socketId)
+              .emit('select player', { groupId, player, groups: this.groups[groupId] });
           } else {
-            socket.emit('select player', { groupId, player });
+            socket.emit('select player', { groupId, player, groups: this.groups[groupId] });
             socket.emit('new message', { groupId, chat });
           }
+          socket.emit('relaod data', { groupId, groups: this.groups[groupId] });
 
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
           for (const [_key, user] of Object.entries(this.groups[groupId]['users'])) {
             if (user.socketId !== player.socketId) {
               // set guessed variable to false
               this.groups[groupId]['users'][user.id].guessed = false;
-              socket.to(user.socketId).emit('select player', { groupId, player });
+              socket
+                .to(user.socketId)
+                .emit('select player', { groupId, player, groups: this.groups[groupId] });
               socket.to(user.socketId).emit('new message', { groupId, chat });
+              socket
+                .to(user.socketId)
+                .emit('relaod data', { groupId, groups: this.groups[groupId] });
             }
           }
         }

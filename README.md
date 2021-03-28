@@ -16,6 +16,7 @@ Share your drawing or stories with anyone in real time.
 13. added how to play section in landing page -- done
 14. save user info in localstorage -- done
 15. fix on touch event in canvas -- done
+16. implement finish and winner screen
 ### References
 
 https://randomword.com/noun
