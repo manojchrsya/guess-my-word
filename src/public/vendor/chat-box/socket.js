@@ -46,6 +46,12 @@ $(window).on('load', function() {
     },
     round: function(data) {
       return `Round ${data.currentRound} of ${data.rounds}`;
+    },
+    winner: function(data, cols) {
+      return `<div class="col-md-${cols}"> <div class="profileImage">
+        <img class="img-responsive img-circle" width="100%" src="${data.profilePic}" alt="${data.name}">
+        <p class="text-center">#${data.rank}</p> <p class="text-center">${data.name}</p>
+      </div></div>`;
     }
   };
   var GUESSMYWORD = {
@@ -58,6 +64,7 @@ $(window).on('load', function() {
       this.onDisconnect();
       this.newMessage();
       this.setPuzzle();
+      this.finishGame();
       this.reloadData();
     },
     setUserName() {
@@ -93,12 +100,27 @@ $(window).on('load', function() {
     renderProfiles: function(users) {
       let profileString = '';
       let boardPlayers = '';
+      let players = [];
       for (let [_key, userDetails] of Object.entries(users)) {
         profileString += templates.profile(userDetails);
         boardPlayers += templates.player(userDetails);
+        players.push(userDetails);
       }
       $('.players').html(profileString);
       $('ul.board-players').html(boardPlayers);
+      players.sort((a, b) => b.score - a.score);
+      // render only top 3 player in winner screen
+      this.renderWinners(players.splice(0, 3));
+    },
+    renderWinners: function(users) {
+      let winners = '';
+      let cols = 4;
+      if (users.length === 1) cols = 12; else if (users.length === 2) cols = 6;
+      users.forEach((user, index) => {
+        user.rank = (index + 1);
+        winners += templates.winner(user, cols);
+      });
+      $('.winners').html(winners);
     },
     renderRound: function(data) {
       let roundString = templates.round(data);
@@ -114,6 +136,7 @@ $(window).on('load', function() {
         $('#roundDropDown, #timerDropDown, .start-game').removeClass('disabled').attr('disabled', false);
         $("#login, #board").addClass('d-none');
         $("#lobby").removeClass('d-none');
+
         this.renderProfiles(data.groups && data.groups.users);
       });
     },
@@ -133,6 +156,8 @@ $(window).on('load', function() {
     },
     startGame() {
       socket.on('start game', (data) => {
+        console.log('--- game started',data);
+        $("#winnerModal").modal('hide');
         // update settings from admin user
         if (data.groups && data.groups.settings) {
           Object.assign(settings, data.groups.settings);
@@ -141,11 +166,27 @@ $(window).on('load', function() {
         }
         this.initDrawPad(data);
         this.renderProfiles(data.groups && data.groups.users);
+        setTimeout(() => {
+          $("#login, #lobby").addClass('d-none');
+          $("#board").removeClass('d-none');
+        }, 500)
         if (data.userId === user.id) {
           // set admin player role
           user.role = 'admin';
           socket.emit('select player', { groupId: data.groupId });
         }
+      });
+    },
+    finishGame() {
+      socket.on('finish game', (data) => {
+        // update settings from admin user
+        if (data.groups && data.groups.settings) {
+          Object.assign(settings, data.groups.settings);
+          // update round info in screen
+          this.renderRound(data.groups.settings);
+        }
+        this.renderProfiles(data.groups && data.groups.users);
+        $('#winnerModal').modal('show');
       });
     },
     selectPlayer() {
@@ -207,6 +248,7 @@ $(window).on('load', function() {
         if (groupId && user && user.id) {
           socket.emit('join group', { ...user, groupId });
         }
+        $("#winnerModal").modal('hide');
       });
     },
     initDrawPad: function(data) {
@@ -320,6 +362,11 @@ $(window).on('load', function() {
     $(this).attr('disabled', true);
     socket.emit('set puzzle', { ...user, groupId, settings });
   });
+
+  $('#winnerModal').on('hidden.bs.modal', function (e) {
+    $("#login, #board").addClass('d-none');
+    $("#lobby").removeClass('d-none');
+  })
 
   function Storage(storageType) {
     var storage = {

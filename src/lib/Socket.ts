@@ -142,6 +142,7 @@ export default class Socket {
       if (groupId && id && this.groups[groupId]) {
         // apply setting data in current group
         settings.status = 'start';
+        settings.currentRound = 1;
         // set current playerId in setting for easy use at client side
         settings.userId = id;
         this.groups[groupId]['settings'] = settings as Settings;
@@ -176,12 +177,23 @@ export default class Socket {
             this.groups[groupId]['settings'].currentRound += 1;
             userIds = _.keys(users);
           } else {
-            console.log('game finishedd....');
+            socket.emit('finish game', { groupId, groups: this.groups[groupId] });
+            console.log(this.groups[groupId]['settings']);
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            for (const [_key, user] of Object.entries(this.groups[groupId]['users'])) {
+              if (user.socketId !== socket.id) {
+                socket
+                  .to(user.socketId)
+                  .emit('finish game', { groupId, groups: this.groups[groupId] });
+              }
+              // reset user played and guessed status
+              this.groups[groupId]['users'][user.id].played = false;
+              this.groups[groupId]['users'][user.id].guessed = false;
+              this.groups[groupId]['users'][user.id].score = 0;
+            }
+            return;
           }
         }
-        console.log(userIds);
-        console.log(settings);
-        // TODO: handle if game is over
         // select randome player from group user's
         const playerId = userIds[Math.floor(Math.random() * userIds.length)];
         if (this.groups[groupId]['users'][playerId]) {
