@@ -1,48 +1,13 @@
 import _ from 'lodash';
 import sanitizeHtml from 'sanitize-html';
-import { profiles } from '../utils/contant';
+import { User, Settings, Event, Chat } from '../rules/interface';
+import Base from './base'
 
-enum GameStatus {
-  start,
-  stop,
-  finish,
-}
-export interface User {
-  id: string;
-  name: string;
-  role: string;
-  guessed?: boolean;
-  score?: number;
-  groupId?: string;
-  socketId?: string;
-  profilePic?: string;
-}
-export interface Settings {
-  rounds: number;
-  currentRound: number;
-  timings: number;
-  puzzle: string;
-  userId?: string;
-  playerId?: string;
-  status: GameStatus;
-}
+export default class Socket extends Base {
 
-export interface Group {
-  id?: string;
-  users?: User;
-  settings?: Settings;
-}
-export interface Chat extends User {
-  message: string;
-  senderId: string;
-  speed: number;
-}
-
-export default class Socket {
-  private groups: { [key: string]: Group } = {};
-  private users: User[];
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   constructor(ioconn: any) {
+    super();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ioconn.on('connect', (socket: any) => {
       this.addGroup(socket);
@@ -59,34 +24,14 @@ export default class Socket {
     });
   }
 
-  getUniqId(): string {
-    let uniqId = '';
-    while (uniqId.length === 0) {
-      uniqId = Math.random().toString(36).substring(2);
-    }
-    return uniqId;
-  }
-
-  profilePicIndex(group: Group): number {
-    return _.keys(group).length % profiles.length;
-  }
-
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   addGroup(socket: any): void {
     socket.on('create group', async (data: User) => {
       const groupId = this.getUniqId();
       this.groups[groupId] = {};
       this.groups[groupId]['users'] = this.groups[groupId]['users'] || ({} as User);
-      this.groups[groupId]['users'][data.id] = {
-        id: data.id,
-        name: data.name,
-        socketId: socket.id,
-        score: 0,
-        played: false,
-        guessed: false,
-        role: 'admin',
-        profilePic: profiles[this.profilePicIndex(this.groups[groupId])],
-      };
+      data.role = 'admin';
+      this.groups[groupId]['users'][data.id] = this.getPlayer(socket, groupId, data);
 
       // add groupId and userId in socket instance
       socket.groupId = groupId;
@@ -106,31 +51,12 @@ export default class Socket {
       if (groupId) {
         this.groups[groupId] = this.groups[groupId] || {};
         this.groups[groupId]['users'] = this.groups[groupId]['users'] || ({} as User);
-        this.groups[groupId]['users'][data.id] = {
-          id: data.id,
-          name: data.name,
-          socketId: socket.id,
-          score: 0,
-          played: false,
-          guessed: false,
-          role: data.role || 'player',
-          profilePic: profiles[this.profilePicIndex(this.groups[groupId])],
-        } as User;
+        this.groups[groupId]['users'][data.id] = this.getPlayer(socket, groupId, data);
         // add groupId and userId in socket instance
         socket.groupId = groupId;
         socket.userId = data.id;
-        // join this socket in groupId new channel
-        // socket.join(groupId);
         // emit group data to all user in groupId channel
-        socket.emit('group joined', { groupId, groups: this.groups[groupId], userId: data.id });
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        for (const [_key, user] of Object.entries(this.groups[groupId]['users'])) {
-          if (user.socketId !== socket.id) {
-            socket
-              .to(user.socketId)
-              .emit('group joined', { groupId, groups: this.groups[groupId], userId: data.id });
-          }
-        }
+        this.broadcast(socket, Event.GroupJoined, { groupId, userId: data.id })
       }
     });
   }
@@ -146,15 +72,10 @@ export default class Socket {
         // set current playerId in setting for easy use at client side
         settings.userId = id;
         this.groups[groupId]['settings'] = settings as Settings;
-        socket.emit('start game', { groupId, groups: this.groups[groupId], userId: id });
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        for (const [_key, user] of Object.entries(this.groups[groupId]['users'])) {
-          if (user.socketId !== socket.id) {
-            socket
-              .to(user.socketId)
-              .emit('start game', { groupId, groups: this.groups[groupId], userId: id });
-          }
-        }
+
+        // emit group data to all user in groupId channel
+        const reset = { played: false, guessed: false, score: 0 };
+        this.broadcast(socket, Event.StartGame, { groupId, userId: data.id, reset });
       }
     });
   }
@@ -165,72 +86,33 @@ export default class Socket {
     socket.on('select player', async (data: any) => {
       const { groupId } = data;
       if (groupId) {
-        const { users, settings } = this.groups[groupId] || {};
-        // filter userIds from users object who have not been marked as played
-        let userIds = _.keys(users).filter((userId: string) => !users[userId].played);
+        // get all userIds not played in current game
+        const userIds = this.getRemainingUserIds(groupId);
         if (userIds.length === 0) {
-          if (settings.currentRound < settings.rounds) {
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            for (const [_key, user] of Object.entries(this.groups[groupId]['users'])) {
-              this.groups[groupId]['users'][user.id].played = false;
-            }
-            this.groups[groupId]['settings'].currentRound += 1;
-            userIds = _.keys(users);
-          } else {
-            socket.emit('finish game', { groupId, groups: this.groups[groupId] });
-            console.log(this.groups[groupId]['settings']);
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            for (const [_key, user] of Object.entries(this.groups[groupId]['users'])) {
-              if (user.socketId !== socket.id) {
-                socket
-                  .to(user.socketId)
-                  .emit('finish game', { groupId, groups: this.groups[groupId] });
-              }
-              // reset user played and guessed status
-              this.groups[groupId]['users'][user.id].played = false;
-              this.groups[groupId]['users'][user.id].guessed = false;
-              this.groups[groupId]['users'][user.id].score = 0;
-            }
-            return;
-          }
+          // emit group data to all user in groupId channel if userIds is empty
+          this.broadcast(socket, Event.FinishGame, { groupId, userId: data.id});
+          return;
         }
         // select randome player from group user's
-        const playerId = userIds[Math.floor(Math.random() * userIds.length)];
+        const playerId: string = userIds[Math.floor(Math.random() * userIds.length)];
         if (this.groups[groupId]['users'][playerId]) {
           // set guessed variable to false'
-          this.groups[groupId]['users'][playerId].guessed = false;
           // set played value as true to avoid choosing same player multiple times
-          this.groups[groupId]['users'][playerId].played = true;
+          Object.assign(this.groups[groupId]['users'][playerId], { guessed: false, played: true });
           const player = this.groups[groupId]['users'][playerId];
           const chat = {
             meta: `<b>${player.name}</b> is choosing a word!`,
           };
           // update playerId in group settings
           this.groups[groupId]['settings'].playerId = playerId;
-          if (player.socketId !== socket.id) {
-            socket
-              .to(player.socketId)
-              .emit('select player', { groupId, player, groups: this.groups[groupId] });
-          } else {
-            socket.emit('select player', { groupId, player, groups: this.groups[groupId] });
-            socket.emit('new message', { groupId, chat });
-          }
-          socket.emit('relaod data', { groupId, groups: this.groups[groupId] });
 
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          for (const [_key, user] of Object.entries(this.groups[groupId]['users'])) {
-            if (user.socketId !== player.socketId) {
-              // set guessed variable to false
-              this.groups[groupId]['users'][user.id].guessed = false;
-              socket
-                .to(user.socketId)
-                .emit('select player', { groupId, player, groups: this.groups[groupId] });
-              socket.to(user.socketId).emit('new message', { groupId, chat });
-              socket
-                .to(user.socketId)
-                .emit('relaod data', { groupId, groups: this.groups[groupId] });
-            }
-          }
+          // emit group data to all user in groupId channel about selected player
+          this.broadcast(socket, Event.SelectPlayer, { groupId, player });
+          // emit info message to all users
+          this.broadcast(socket, Event.NewMessage, { groupId, chat });
+          // reload all details and update settings at client side
+          const reset = { guessed: false };
+          this.broadcast(socket, Event.ReloadData, { groupId, reset });
         }
       }
     });

@@ -9,14 +9,14 @@ Share your drawing or stories with anyone in real time.
 6. handle users disconnect issue -- done
 7. disable drawpad for other than admin -- done
 8. poll admin player if admin user get disconnect
-9. simplify code base for socket.js server side
+9. simplify code base for socket.js server side -- wip
 10. end game if every player has guess the word exept selected player -- done
 11. fix multi user name display in chat box -- done
-12. implement round feature -- wip
+12. implement round feature -- done
 13. added how to play section in landing page -- done
 14. save user info in localstorage -- done
 15. fix on touch event in canvas -- done
-16. implement finish and winner screen
+16. implement finish and winner screen -- done
 ### References
 
 https://randomword.com/noun
