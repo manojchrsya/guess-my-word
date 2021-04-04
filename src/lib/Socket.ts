@@ -174,6 +174,7 @@ export default class Socket extends Base {
       const { groupId, userId } = socket;
       if (groupId && this.groups[groupId]) {
         socket.disconnect();
+        this.pollNewAdmin(groupId, userId);
         delete this.groups[groupId]['users'][userId];
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         for (const [_key, user] of Object.entries(this.groups[groupId]['users'])) {

@@ -48,6 +48,21 @@ export default class Base {
     return userIds;
   }
 
+  pollNewAdmin(groupId: string, userId: string): void {
+    if (this.groups[groupId] && this.groups[groupId]['users']) {
+      const user = this.groups[groupId]['users'][userId];
+      const players = this.groups[groupId]['users'];
+      if (user && user.role === 'admin') {
+        let userIds = _.keys(players).filter((playerId: string) => playerId !== userId);
+        const playerId: string = userIds[Math.floor(Math.random() * userIds.length)];
+        if (playerId) {
+          // update players role as admin
+          this.groups[groupId]['users'][playerId]['role'] = 'admin';
+        }
+      }
+    }
+  }
+
   broadcast(socket: any, event: Event, options: EventOptions): void {
     // emit group data to all user in groupId channel
     const { groupId, userId, reset } = options;

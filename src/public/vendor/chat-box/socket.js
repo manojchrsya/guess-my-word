@@ -105,6 +105,11 @@ $(window).on('load', function() {
         profileString += templates.profile(userDetails);
         boardPlayers += templates.player(userDetails);
         players.push(userDetails);
+        // if current user set as admin then enable the setting dropdown and play button
+        if (userDetails.id === user.id && userDetails.role === 'admin') {
+          user.role = 'admin';
+          $('#roundDropDown, #timerDropDown, .start-game').removeClass('disabled').attr('disabled', false);
+        }
       }
       $('.players').html(profileString);
       $('ul.board-players').html(boardPlayers);

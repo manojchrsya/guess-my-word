@@ -8,7 +8,7 @@ Share your drawing or stories with anyone in real time.
 5. select random player after timer completes -- done
 6. handle users disconnect issue -- done
 7. disable drawpad for other than admin -- done
-8. poll admin player if admin user get disconnect -- wip
+8. poll admin player if admin user get disconnect -- done
 9. simplify code base for socket.js server side -- done
 10. end game if every player has guess the word exept selected player -- done
 11. fix multi user name display in chat box -- done
