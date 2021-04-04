@@ -17,6 +17,8 @@ Share your drawing or stories with anyone in real time.
 14. save user info in localstorage -- done
 15. fix on touch event in canvas -- done
 16. implement finish and winner screen -- done
+17. write test cases -- wip
+18. fetch word from randomword, display in popup and let user select the word.
 ### References
 
 https://randomword.com/noun

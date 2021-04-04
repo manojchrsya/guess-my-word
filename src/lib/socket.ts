@@ -28,6 +28,7 @@ export default class Socket extends Base {
   addGroup(socket: any): void {
     socket.on('create group', async (data: User) => {
       const groupId = this.getUniqId();
+      // create new empty object
       this.groups[groupId] = {};
       this.groups[groupId]['users'] = this.groups[groupId]['users'] || ({} as User);
       data.role = 'admin';
