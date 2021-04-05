@@ -90,6 +90,10 @@ export default class Socket extends Base {
         // get all userIds not played in current game
         const userIds = this.getRemainingUserIds(groupId);
         if (userIds.length === 0) {
+          // update game status as finished in group setting
+          if (this.groups[groupId] && this.groups[groupId]['settings']) {
+            Object.assign(this.groups[groupId]['settings'], { status: 'finish' });
+          }
           // emit group data to all user in groupId channel if userIds is empty
           this.broadcast(socket, Event.FinishGame, { groupId, userId: data.id});
           return;
