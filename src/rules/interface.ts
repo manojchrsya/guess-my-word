@@ -12,6 +12,7 @@ export enum Event {
   FinishGame = 'finish game',
   NewMessage = 'new message',
   ReloadData = 'relaod data',
+  NextPuzzle = 'next puzzle',
 }
 
 export interface User {
@@ -47,6 +48,11 @@ export interface Chat extends User {
   speed: number;
 }
 
+export type RandomWord = {
+  title: string;
+  description: string;
+};
+
 export interface EventOptions {
   groupId: string;
   userId?: string;
@@ -55,4 +61,5 @@ export interface EventOptions {
   player?: User;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   chat?: any;
+  puzzle?: RandomWord;
 }

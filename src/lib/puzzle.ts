@@ -1,12 +1,7 @@
 import request from 'request';
 import cheerio from 'cheerio';
-
+import { RandomWord } from '../rules/interface';
 const URL = 'https://randomword.com/noun';
-
-export type RandomWord = {
-  title: string;
-  description: string;
-};
 
 export default class Puzzle {
   private url = URL;

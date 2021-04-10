@@ -15,6 +15,7 @@ export default class Socket extends Base {
       this.startGame(socket);
       this.selectPlayer(socket);
       this.drawing(socket);
+      this.nextPuzzle(socket);
       this.setPuzzle(socket);
       this.showPuzzle(socket);
       // eslint-disable-next-line
@@ -109,9 +110,9 @@ export default class Socket extends Base {
           };
           // update playerId in group settings
           this.groups[groupId]['settings'].playerId = playerId;
-
+          const puzzle = await this.randomWord();
           // emit group data to all user in groupId channel about selected player
-          this.broadcast(socket, Event.SelectPlayer, { groupId, player });
+          this.broadcast(socket, Event.SelectPlayer, { groupId, player, puzzle });
           // emit info message to all users
           this.broadcast(socket, Event.NewMessage, { groupId, chat });
           // reload all details and update settings at client side
@@ -203,6 +204,18 @@ export default class Socket extends Base {
             }
           }
         }
+      }
+    });
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  nextPuzzle(socket: any): void {
+    socket.on('next puzzle', async (data: User) => {
+      const { groupId } = data;
+      if (groupId && this.groups[groupId]) {
+        const puzzle = await this.randomWord();
+        // emit data to user in groupId channel
+        socket.emit('next puzzle', { groups: this.groups[groupId], puzzle });
       }
     });
   }

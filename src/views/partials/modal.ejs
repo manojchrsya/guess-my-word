@@ -40,17 +40,23 @@
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="puzzleTitle">Select the puzzle word!!</h5>
+        <button class="float-right btn btn-success next-puzzle btn-sm"><i class="fa fa-sync-alt" aria-hidden="true"></i></button>
       </div>
       <div class="modal-body">
         <div class="puzzle-container d-none">
-          <div class="input-group mx-auto col-md-12 px-0">
-            <input class="form-control form-control puzzle-word" type="text" placeholder="Please enter your word here...">
+          <div class="mx-auto col-md-12 px-0 text-center">
+            <!-- <input class="form-control form-control puzzle-word" type="text" placeholder="Please enter your word here...">
             <div class="input-group-append">
               <button class="btn btn-success set-puzzle-word" type="button"><i class="fa fa-save" aria-hidden="true"></i></button>
-            </div>
+            </div> -->
+            <h2><span class="badge badge-secondary puzzle-word"></span></h2>
+            <p class="m-0 puzzle-desc"></p>
           </div>
           <div class="alert alert-danger d-none puzzleInstruct p-0 m-0" role="alert"></div>
         </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary set-puzzle-word">Save</button>
       </div>
     </div>
   </div>
