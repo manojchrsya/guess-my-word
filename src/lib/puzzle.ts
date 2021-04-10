@@ -5,13 +5,18 @@ const URL = 'https://randomword.com/noun';
 
 export default class Puzzle {
   private url = URL;
+  private _response: string;
+
+  get response() {
+    return this._response;
+  }
 
   async randomWord(): Promise<RandomWord> {
     const data: RandomWord = {} as RandomWord;
-    const response = await this.parseUrl(this.url);
-    const $ = cheerio.load(response);
-    data.title = $(response).find('#shared_section > #random_word').text();
-    data.description = $(response).find('#shared_section > #random_word_definition').text();
+    this._response = await this.parseUrl(this.url);
+    const $ = cheerio.load(this._response);
+    data.title = $(this._response).find('#shared_section > #random_word').text();
+    data.description = $(this._response).find('#shared_section > #random_word_definition').text();
     return data;
   }
 

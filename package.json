@@ -10,6 +10,7 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "clean": "rm -rf ./build",
+    "test": "tap",
     "build": "tsc && npm run copy-files",
     "copy-files": "cp -r ./src/views ./src/public ./build/",
     "start": "node build/server.js",
@@ -58,7 +59,7 @@
     "nodemon": "^2.0.7",
     "pino-pretty": "^4.5.0",
     "prettier": "^2.2.1",
-    "tap": "^14.0.0",
+    "tap": "^14.11.0",
     "ts-node": "^9.1.1",
     "typescript": "^4.1.5"
   }
