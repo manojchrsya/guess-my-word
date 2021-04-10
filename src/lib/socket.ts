@@ -1,10 +1,9 @@
 import _ from 'lodash';
 import sanitizeHtml from 'sanitize-html';
 import { User, Settings, Event, Chat } from '../rules/interface';
-import Base from './base'
+import Base from './base';
 
 export default class Socket extends Base {
-
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   constructor(ioconn: any) {
     super();
@@ -57,7 +56,7 @@ export default class Socket extends Base {
         socket.groupId = groupId;
         socket.userId = data.id;
         // emit group data to all user in groupId channel
-        this.broadcast(socket, Event.GroupJoined, { groupId, userId: data.id })
+        this.broadcast(socket, Event.GroupJoined, { groupId, userId: data.id });
       }
     });
   }
@@ -95,7 +94,7 @@ export default class Socket extends Base {
             Object.assign(this.groups[groupId]['settings'], { status: 'finish' });
           }
           // emit group data to all user in groupId channel if userIds is empty
-          this.broadcast(socket, Event.FinishGame, { groupId, userId: data.id});
+          this.broadcast(socket, Event.FinishGame, { groupId, userId: data.id });
           return;
         }
         // select randome player from group user's

@@ -1,4 +1,4 @@
-<!-- Modal -->
+<!-- Winner List Modal -->
 <div class="modal fade" id="winnerModal" tabindex="-1" role="dialog" aria-labelledby="winnerModalTitle" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered" role="document">
     <div class="modal-content">
@@ -28,6 +28,28 @@
               <p class="text-center">#3 Rahul</p>
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Puzzle Container Modal -->
+<div class="modal fade" id="puzzleWord" tabindex="-1" role="dialog" aria-labelledby="puzzleTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="puzzleTitle">Select the puzzle word!!</h5>
+      </div>
+      <div class="modal-body">
+        <div class="puzzle-container d-none">
+          <div class="input-group mx-auto col-md-12 px-0">
+            <input class="form-control form-control puzzle-word" type="text" placeholder="Please enter your word here...">
+            <div class="input-group-append">
+              <button class="btn btn-success set-puzzle-word" type="button"><i class="fa fa-save" aria-hidden="true"></i></button>
+            </div>
+          </div>
+          <div class="alert alert-danger d-none puzzleInstruct p-0 m-0" role="alert"></div>
         </div>
       </div>
     </div>

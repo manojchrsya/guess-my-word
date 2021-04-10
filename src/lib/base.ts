@@ -1,15 +1,15 @@
-
 import _ from 'lodash';
 import { profiles } from '../utils/contant';
+import Puzzle from './puzzle';
 import { Group, User, Event, EventOptions } from '../rules/interface';
 
-export default class Base {
+export default class Base extends Puzzle {
   protected groups: { [key: string]: Group } = {};
 
   getUniqId(): string {
     let uniqId = '';
     while (uniqId.length === 0) {
-        uniqId = Math.random().toString(36).substring(2);
+      uniqId = Math.random().toString(36).substring(2);
     }
     return uniqId;
   }
@@ -18,6 +18,7 @@ export default class Base {
     return _.keys(group).length % profiles.length;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   getPlayer(socket: any, groupId: string, data: User): User {
     return {
       id: data.id,
@@ -28,7 +29,7 @@ export default class Base {
       guessed: false,
       role: data.role || 'player',
       profilePic: profiles[this.profilePicIndex(this.groups[groupId])],
-    }
+    };
   }
 
   getRemainingUserIds(groupId: string): [] {
@@ -53,7 +54,7 @@ export default class Base {
       const user = this.groups[groupId]['users'][userId];
       const players = this.groups[groupId]['users'];
       if (user && user.role === 'admin') {
-        let userIds = _.keys(players).filter((playerId: string) => playerId !== userId);
+        const userIds = _.keys(players).filter((playerId: string) => playerId !== userId);
         const playerId: string = userIds[Math.floor(Math.random() * userIds.length)];
         if (playerId) {
           // update players role as admin
@@ -63,9 +64,10 @@ export default class Base {
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   broadcast(socket: any, event: Event, options: EventOptions): void {
     // emit group data to all user in groupId channel
-    const { groupId, userId, reset } = options;
+    const { groupId, reset } = options;
     // remove reset node from EventOptions
     delete options.reset;
 
@@ -74,9 +76,7 @@ export default class Base {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       for (const [_key, user] of Object.entries(this.groups[groupId]['users'])) {
         if (user.socketId !== socket.id) {
-          socket
-            .to(user.socketId)
-            .emit(event, { ...options, groups: this.groups[groupId] });
+          socket.to(user.socketId).emit(event, { ...options, groups: this.groups[groupId] });
         }
         // reset players details
         if (reset && Object.keys(reset).length > 0) {

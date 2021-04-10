@@ -48,9 +48,11 @@ export interface Chat extends User {
 }
 
 export interface EventOptions {
-  groupId: string,
-  userId?: string,
-  reset?: object,
-  player?: User,
-  chat?: any
+  groupId: string;
+  userId?: string;
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  reset?: object;
+  player?: User;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  chat?: any;
 }

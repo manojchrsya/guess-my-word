@@ -206,7 +206,7 @@ $(window).on('load', function() {
           console.log('you have been selected player ', data);
           $('.puzzle-word').val('');
           $('.set-puzzle-word').attr('disabled', false);
-          $('.puzzle-text').addClass('d-none');
+          $('#puzzleWord').modal('show');
           $('.puzzle-container').removeClass('d-none');
           // register mouse or touch events;
           if (this.drawpadInstance) {
@@ -240,6 +240,7 @@ $(window).on('load', function() {
           });
           $('.puzzle-container').addClass('d-none');
           $('.puzzle-text').removeClass('d-none').html(puzzleText);
+          $("#puzzleWord").modal('hide');
           this.startTimer();
         }
       });
@@ -254,6 +255,7 @@ $(window).on('load', function() {
           socket.emit('join group', { ...user, groupId });
         }
         $("#winnerModal").modal('hide');
+        $("#puzzleWord").modal('hide');
       });
     },
     initDrawPad: function(data) {
@@ -359,7 +361,7 @@ $(window).on('load', function() {
     e.preventDefault();
     settings.puzzle = $('.puzzle-word').val();
     if (!settings.puzzle || (settings.puzzle && settings.puzzle.trim().length === 0)) {
-      $(".instructions").removeClass('d-none').text('Please enter the word to continue!!');
+      $(".puzzleInstruct").removeClass('d-none').text('Please enter the word to continue!!');
       return false
     }
     settings.puzzle = settings.puzzle.toLowerCase();
@@ -372,6 +374,8 @@ $(window).on('load', function() {
     $("#login, #board").addClass('d-none');
     $("#lobby").removeClass('d-none');
   })
+
+
 
   function Storage(storageType) {
     var storage = {
