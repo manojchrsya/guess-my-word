@@ -12,13 +12,12 @@ app.register(fp(App), {});
 // register fastify socket io
 app.register(socketioServer);
 
-if (require.main === module) {
+const start = (): void => {
   // connect socket after app ready event
   app.ready((err) => {
     if (err) throw err;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     new Socket(app.io);
-    // app.io.on('connect', (socket: any) => );
   });
 
   // start you server and listing on specified port
@@ -29,4 +28,11 @@ if (require.main === module) {
       process.exit(1);
     }
   });
+};
+
+if (require.main === module) {
+  start();
 }
+
+module.exports = exports = start;
+module.exports = exports = app;
