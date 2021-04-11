@@ -1,4 +1,4 @@
-import request from 'request';
+import fetch from 'node-fetch';
 import cheerio from 'cheerio';
 import { RandomWord } from '../rules/interface';
 const URL = 'https://randomword.com/noun';
@@ -21,16 +21,6 @@ export default class Puzzle {
   }
 
   async parseUrl(url: string): Promise<string> {
-    return new Promise((resolve) => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      request(url, (error: any, response: { body: string | PromiseLike<string> }) => {
-        if (error) {
-          // eslint-disable-next-line no-console
-          console.error(error);
-          return false;
-        }
-        return resolve(response.body);
-      });
-    });
+    return fetch(url).then((res) => res.text());
   }
 }
