@@ -7,7 +7,6 @@ export default class Socket extends Base {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   constructor(ioconn: any) {
     super();
-    this.randomWord();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ioconn.on('connect', (socket: any) => {
       this.addGroup(socket);
