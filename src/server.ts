@@ -34,5 +34,4 @@ if (require.main === module) {
   start();
 }
 
-module.exports = exports = start;
-module.exports = exports = app;
+export default app;
