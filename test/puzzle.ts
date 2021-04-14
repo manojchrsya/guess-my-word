@@ -4,7 +4,7 @@ import Puzzle from '../src/lib/puzzle';
 
 import { RandomWord } from '../src/rules/interface';
 
-tap.skip('generate random word for puzzle', async (t) => {
+tap.test('generate random word for puzzle', async (t) => {
   const puzzle = new Puzzle();
   const result = await puzzle.randomWord();
   const response = puzzle.response;
