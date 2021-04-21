@@ -43,6 +43,7 @@
     "fastify-socket.io": "^1.0.2",
     "fastify-static": "^4.0.0",
     "fluent-json-schema": "^2.0.4",
+    "mercurius": "^7.4.0",
     "node-fetch": "^2.6.1",
     "point-of-view": "^4.13.0",
     "sanitize-html": "^2.3.2"
