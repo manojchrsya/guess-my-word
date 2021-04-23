@@ -1,7 +1,4 @@
-const schema = `
-  type Query {
-    add(x: Int, y: Int): Int
-  }
-`;
+import QuerySchema from './Query';
+import GroupSchema from './Group';
 
-export default schema;
+export default [QuerySchema, GroupSchema];

@@ -3,7 +3,7 @@ import AutoLoad from 'fastify-autoload';
 import { FastifyInstance } from 'fastify';
 import initConfig from './lib/config';
 
-import { schema, resolvers } from './graphql';
+import ExecutableSchema from './graphql';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export default async (fastify: FastifyInstance, opts: any) => {
@@ -21,8 +21,7 @@ export default async (fastify: FastifyInstance, opts: any) => {
     .register(require('fastify-compress'), { threshold: 0 })
     .register(require('fastify-formbody'))
     .register(require('mercurius'), {
-      schema,
-      resolvers,
+      schema: ExecutableSchema,
       graphiql: true,
     });
   // Do not touch the following lines

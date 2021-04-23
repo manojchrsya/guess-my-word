@@ -1,10 +1,4 @@
-const resolvers = {
-  Query: {
-    add: async (_, obj) => {
-      const { x, y } = obj;
-      return x + y;
-    },
-  },
-};
+import QueryResolver from './Query';
+import GroupResolver from './Group';
 
-export default resolvers;
+export default [QueryResolver, GroupResolver];
