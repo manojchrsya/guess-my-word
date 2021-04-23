@@ -1,4 +1,4 @@
-import Query from './typeDefs';
+import schema from './typeDefs';
 import resolvers from './resolvers';
 
-export { Query, resolvers };
+export { schema, resolvers };

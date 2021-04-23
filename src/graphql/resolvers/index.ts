@@ -1,6 +1,9 @@
 const resolvers = {
   Query: {
-    hello: (_, { name }) => `Hello ${name || 'World'}`,
+    add: async (_, obj) => {
+      const { x, y } = obj;
+      return x + y;
+    },
   },
 };
 

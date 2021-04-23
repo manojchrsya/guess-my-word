@@ -1,16 +1,14 @@
 import path from 'path';
 import AutoLoad from 'fastify-autoload';
 import { FastifyInstance } from 'fastify';
-import mercurius from 'mercurius';
-
 import initConfig from './lib/config';
-import { Query, resolvers } from './graphql';
+
+import { schema, resolvers } from './graphql';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export default async (fastify: FastifyInstance, opts: any) => {
   // initilize and load all config from .env file
   initConfig();
-
   // 1. set default template enging to render pages
   // 2. server static file from server
   fastify
@@ -22,12 +20,12 @@ export default async (fastify: FastifyInstance, opts: any) => {
     .register(require('fastify-cors'), { exposedHeaders: 'Content-Disposition' })
     .register(require('fastify-compress'), { threshold: 0 })
     .register(require('fastify-formbody'))
-  //   .register(mercurius, {
-  //     Query,
-  //     resolvers,
-  //     graphiql: true,
-  //   });
-  // // Do not touch the following lines
+    .register(require('mercurius'), {
+      schema,
+      resolvers,
+      graphiql: true,
+    });
+  // Do not touch the following lines
 
   // This loads all plugins defined in plugins
   // those should be support plugins that are reused
