@@ -1,5 +1,5 @@
 const GroupResolver = {
-  Group: {
+  Query: {
     hello: async (_: unknown, data: { name: string }): Promise<string> =>
       `Welcome to graphql ${data.name}`,
   },

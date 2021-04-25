@@ -8,7 +8,7 @@ const ExecutableSchema = makeExecutableSchema({
   // Merge type definitions from different sources
   typeDefs: mergeTypeDefs(schema),
   // Merge resolvers from different sources
-  resolvers: mergeResolvers([...resolvers]),
+  resolvers: mergeResolvers(resolvers),
 });
 
 export default ExecutableSchema;

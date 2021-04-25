@@ -13,6 +13,7 @@
     "baseUrl": "src",
     "rootDir": "./src",
     "skipLibCheck": true,
+    "experimentalDecorators": true,
     "paths": {
       "@lib/*": ["lib/*"]
     }
