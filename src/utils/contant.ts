@@ -1,16 +1,16 @@
 const profiles: Array<string> = [
-  'https://avatars.githubusercontent.com/u/4006173',
-  'https://avatars.githubusercontent.com/u/4006176',
-  'https://avatars.githubusercontent.com/u/4006177',
-  'https://avatars.githubusercontent.com/u/4006178',
-  'https://avatars.githubusercontent.com/u/4006179',
-  'https://avatars.githubusercontent.com/u/4006180',
-  'https://avatars.githubusercontent.com/u/4006181',
-  'https://avatars.githubusercontent.com/u/4006182',
-  'https://avatars.githubusercontent.com/u/4006183',
-  'https://avatars.githubusercontent.com/u/4006184',
-  'https://avatars.githubusercontent.com/u/4006185',
-  'https://avatars.githubusercontent.com/u/4006187',
+  'https://randomuser.me/api/portraits/men/45.jpg',
+  'https://randomuser.me/api/portraits/men/46.jpg',
+  'https://randomuser.me/api/portraits/men/47.jpg',
+  'https://randomuser.me/api/portraits/men/48.jpg',
+  'https://randomuser.me/api/portraits/men/49.jpg',
+  'https://randomuser.me/api/portraits/men/50.jpg',
+  'https://randomuser.me/api/portraits/women/50.jpg',
+  'https://randomuser.me/api/portraits/women/51.jpg',
+  'https://randomuser.me/api/portraits/women/52.jpg',
+  'https://randomuser.me/api/portraits/women/53.jpg',
+  'https://randomuser.me/api/portraits/women/54.jpg',
+  'https://randomuser.me/api/portraits/women/55.jpg',
 ];
 
 const words: Array<string> = ['mountain', 'city', 'industry', 'building', 'rain', 'cookie'];

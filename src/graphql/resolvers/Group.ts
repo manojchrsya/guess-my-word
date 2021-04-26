@@ -1,7 +1,14 @@
+import { Group } from '../../rules/interface';
+
 const GroupResolver = {
   Query: {
-    hello: async (_: unknown, data: { name: string }): Promise<string> =>
-      `Welcome to graphql ${data.name}`,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    groups: async (_: unknown, { id }: { id: string }): Promise<[Group]> => {
+      const groupIds = Object.keys(globalThis.socketInstance.groups);
+      return groupIds.map((groupId) => {
+        return { id: groupId };
+      }) as [Group];
+    },
   },
 };
 

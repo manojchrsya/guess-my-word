@@ -16,4 +16,7 @@ module.exports = {
     '@typescript-eslint/no-var-requires': 0,
     'no-console': 1,
   },
+  globals: {
+    socketInstance: true,
+  },
 };

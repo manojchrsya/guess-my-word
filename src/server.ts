@@ -7,6 +7,16 @@ import Socket from './lib/socket';
 // const app = Fastify({ logger: true, pluginTimeout: 4000 });
 const app: FastifyInstance = fastify({ logger: true, pluginTimeout: 4000 });
 
+declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
+  namespace NodeJS {
+    interface Global {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      socketInstance: any;
+    }
+  }
+}
+
 // Register your application as a normal plugin.
 app.register(fp(App), {});
 // register fastify socket io
@@ -17,7 +27,7 @@ const start = (): void => {
   app.ready((err) => {
     if (err) throw err;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    new Socket(app.io);
+    global.socketInstance = new Socket(app.io);
   });
 
   // start you server and listing on specified port
