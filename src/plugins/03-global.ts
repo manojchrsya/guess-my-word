@@ -22,6 +22,35 @@ const FastifyGlobal: FastifyPluginAsync = async function (fastify: FastifyInstan
     reply.locals.errors = [];
     return next();
   });
+
+  // fastify.addHook(
+  //   'onSend',
+  //   (request: FastifyRequest, reply: FastifyReply, payload: string, done) => {
+  //     if (!payload) {
+  //       done(undefined, null);
+  //       return;
+  //     }
+  //     let payloadParsed = { errors: [] };
+  //     try {
+  //       payloadParsed = JSON.parse(payload);
+  //     } catch (e) {}
+  //     if (!!payloadParsed.errors && payloadParsed.errors.length > 0) {
+  //       const errors = payloadParsed.errors.map((err) => {
+  //         if (!err) {
+  //           return null;
+  //         }
+  //         // TODO:: need to handle default error code
+  //         return {
+  //           code: err.code || 500,
+  //           message: err.message,
+  //           path: err.path,
+  //         };
+  //       });
+  //       payloadParsed.errors = errors;
+  //     }
+  //     done(undefined, JSON.stringify(payloadParsed));
+  //   },
+  // );
 };
 
 export default fp(FastifyGlobal, '3.x');
