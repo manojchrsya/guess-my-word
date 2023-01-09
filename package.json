@@ -44,7 +44,7 @@
     "fastify-static": "^4.0.0",
     "fluent-json-schema": "^2.0.4",
     "graphql-tools": "^7.0.4",
-    "mercurius": "^7.4.0",
+    "mercurius": "^11.5.0",
     "mercurius-codegen": "^1.4.3",
     "node-fetch": "^2.6.1",
     "point-of-view": "^4.13.0",
