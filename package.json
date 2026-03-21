@@ -13,7 +13,7 @@
     "test": "tap",
     "build": "tsc && npm run copy-files",
     "copy-files": "cp -r ./src/views ./src/public ./build/",
-    "start": "node build/server.js",
+    "start": "pm2 start ecosystem.config.js",
     "dev": "nodemon"
   },
   "repository": {
@@ -47,6 +47,7 @@
     "mercurius": "^7.4.0",
     "mercurius-codegen": "^1.4.3",
     "node-fetch": "^2.6.1",
+    "pm2": "^6.0.14",
     "point-of-view": "^4.13.0",
     "sanitize-html": "^2.3.2",
     "type-graphql": "^1.1.1"
