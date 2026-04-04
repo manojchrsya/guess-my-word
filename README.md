@@ -51,6 +51,7 @@ Share your drawing or stories with anyone in real time.
 #### Admin controls
 - [ ] Simple admin panel: kick player, end game, start new round, change difficulty.
 
-### References
-
-https://randomword.com/noun
+#### Core game loop & product
+- [ ] Show rounds left / total rounds and a simple progress indicator.
+- [ ] Highlight current drawer with name/avatar ("X is drawing...").
+- [ ] Add difficulty tiers for words (easy / medium / hard) and tie to scoring.
