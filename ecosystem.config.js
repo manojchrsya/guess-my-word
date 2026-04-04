@@ -1,3 +1,4 @@
+
 module.exports = {
   apps: [
     {
@@ -9,8 +10,9 @@ module.exports = {
       ignore_watch: ['node_modules', 'logs', '.git', '.data'],
       instances: '1',
       exec_mode: 'cluster',
-      max_memory_restart: '3000M',
+      max_memory_restart: '1000M',
       merge_logs: true,
-    }
-  ]
-}
+    },
+  ],
+};
+
