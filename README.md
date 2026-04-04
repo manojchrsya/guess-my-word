@@ -1,5 +1,6 @@
 # guess-my-word
 Share your drawing or stories with anyone in real time.
+
 ### Todo
 * [x] clear html text from chat box.
 * [x] assign score after player submit the guess word based on timings.
@@ -38,7 +39,6 @@ Share your drawing or stories with anyone in real time.
 - [ ] Add simple anti-spam: rate-limit guesses and temporary mute for heavy spam.
 
 #### UI / UX
-- [ ] Mobile-first UI using Tailwind CSS (high priority).
 - [ ] Make layout mobile-first (canvas + chat + status bar that works well on phones).
 - [ ] Show word hints (underscores for length, optional letter reveals near timeout).
 - [ ] Add a small tutorial overlay for first-time users (draw area, guess input, scores).
@@ -50,3 +50,8 @@ Share your drawing or stories with anyone in real time.
 
 #### Admin controls
 - [ ] Simple admin panel: kick player, end game, start new round, change difficulty.
+
+#### Core game loop & product
+- [ ] Show rounds left / total rounds and a simple progress indicator.
+- [ ] Highlight current drawer with name/avatar ("X is drawing...").
+- [ ] Add difficulty tiers for words (easy / medium / hard) and tie to scoring.
