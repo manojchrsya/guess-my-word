@@ -29,7 +29,6 @@
   "homepage": "https://github.com/manojchrsya/guess-my-word#readme",
   "dependencies": {
     "bluebird": "^3.7.2",
-    "cheerio": "^1.0.0-rc.6",
     "dotenv": "^8.2.0",
     "ejs": "^3.1.6",
     "env-schema": "^2.1.0",
@@ -46,10 +45,8 @@
     "graphql-tools": "^7.0.4",
     "mercurius": "^7.4.0",
     "mercurius-codegen": "^1.4.3",
-    "node-fetch": "^2.6.1",
     "pm2": "^6.0.14",
     "point-of-view": "^4.13.0",
-    "puppeteer": "^24.40.0",
     "sanitize-html": "^2.3.2",
     "type-graphql": "^1.1.1"
   },

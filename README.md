@@ -20,6 +20,33 @@ Share your drawing or stories with anyone in real time.
 * [x] fetch word from randomword, display in popup and let user select the word.
 * [ ] write test cases.
 
-### References
+### Planned improvements
 
-https://randomword.com/noun
+#### Core game loop & product
+- [ ] Show rounds left / total rounds and a simple progress indicator.
+- [ ] Highlight current drawer with name/avatar ("X is drawing...").
+- [ ] Add difficulty tiers for words (easy / medium / hard) and tie to scoring.
+
+#### Word system
+- [x] Remove dependency on randomword.com and scraping.
+- [x] Load nouns from a local JSON file (fast, no external calls).
+- [ ] Expand `src/lib/nouns.json` toward ~1000 curated nouns (tagged by category and difficulty).
+- [ ] Add basic word categories (e.g., General / Food / Travel / Tech / Animals / Objects) and allow room admin to choose.
+
+#### Guessing & chat
+- [ ] Implement approximate matching for guesses (minor typos still count).
+- [ ] Add simple anti-spam: rate-limit guesses and temporary mute for heavy spam.
+
+#### UI / UX
+- [ ] Mobile-first UI using Tailwind CSS (high priority).
+- [ ] Make layout mobile-first (canvas + chat + status bar that works well on phones).
+- [ ] Show word hints (underscores for length, optional letter reveals near timeout).
+- [ ] Add a small tutorial overlay for first-time users (draw area, guess input, scores).
+- [ ] Improve error messages (room not found, reconnecting, etc.).
+
+#### Social & session flow
+- [ ] Add a "Play again with same players" / rematch button after game end.
+- [ ] Use lightweight persistent profiles (name + color/avatar via localStorage).
+
+#### Admin controls
+- [ ] Simple admin panel: kick player, end game, start new round, change difficulty.
