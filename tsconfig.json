@@ -14,10 +14,11 @@
     "rootDir": "./src",
     "skipLibCheck": true,
     "experimentalDecorators": true,
+    "resolveJsonModule": true,
     "paths": {
       "@lib/*": ["lib/*"]
     }
   },
-  "include": ["src/**/*.ts"],
+  "include": ["src/**/*.ts", "src/**/*.json"],
   "exclude": ["node_modules"]
 }
