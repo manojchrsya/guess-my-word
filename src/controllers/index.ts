@@ -8,7 +8,7 @@ declare module 'fastify' {
 export default class IndexController {
   async home(request: FastifyRequest<{ Querystring: { code?: string } }>, reply: FastifyReply) {
     const { code = '' } = request.query;
-    const shareLink = `${process.env.BASE_URL}?code=${code}`;
+    const shareLink = `${process.env.HOST_URL}?code=${code}`;
     return reply.view('index.ejs', { code, shareLink });
   }
 }

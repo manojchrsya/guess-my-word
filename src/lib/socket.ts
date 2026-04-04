@@ -39,7 +39,7 @@ export default class Socket extends Base {
       socket.userId = data.id;
       // join this socket in groupId new channel
       // socket.join(groupId);
-      const shareLink = `${process.env.BASE_URL}?code=${groupId}`;
+      const shareLink = `${process.env.HOST_URL}?code=${groupId}`;
       socket.emit('group added', { groupId, shareLink, groups: this.groups[groupId] });
     });
   }
