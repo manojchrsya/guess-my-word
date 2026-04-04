@@ -8,6 +8,7 @@ export default function loadConfig(): void {
     envPath = [process.cwd(), 'env.sample'].join('/');
   }
   const result = require('dotenv').config({ path: envPath });
+  console.log('%j', result);
   if (result.error) {
     throw new Error(result.error);
   }
@@ -18,6 +19,6 @@ export default function loadConfig(): void {
       .prop('NODE_ENV', S.string().enum(['development', 'production']).required())
       .prop('HOST', S.string().required())
       .prop('PORT', S.string().default('3000').required())
-      .prop('BASE_URL', S.string().required()),
+      .prop('HOST_URL', S.string().required()),
   });
 }

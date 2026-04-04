@@ -17,7 +17,8 @@ const FastifyGlobal: FastifyPluginAsync = async function (fastify: FastifyInstan
     // eslint-disable-next-line no-param-reassign
     reply.locals = reply.locals || {};
     // eslint-disable-next-line no-param-reassign
-    reply.locals.url = process.env.BASE_URL;
+    reply.locals.url = process.env.HOST_URL;
+    console.log('---' + process.env.HOST_URL)
     // eslint-disable-next-line no-param-reassign
     reply.locals.errors = [];
     return next();

@@ -1,14 +1,14 @@
 import path from 'path';
 import AutoLoad from 'fastify-autoload';
 import { FastifyInstance } from 'fastify';
-import initConfig from './lib/config';
+import loadConfig from './lib/config';
 
 import ExecutableSchema from './graphql';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export default async (fastify: FastifyInstance, opts: any) => {
   // initilize and load all config from .env file
-  initConfig();
+  loadConfig();
   // 1. set default template enging to render pages
   // 2. server static file from server
   fastify
