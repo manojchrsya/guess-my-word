@@ -1,12 +1,32 @@
-import fetch from 'node-fetch';
-import cheerio from 'cheerio';
-import puppeteer from 'puppeteer';
 import { RandomWord } from '../rules/interface';
 
-const URL = 'https://randomword.com/noun';
+// A curated list of common English nouns with simple descriptions.
+// This avoids external HTTP requests and bot protection issues and
+// gives fast, deterministic puzzle generation.
+const NOUNS: RandomWord[] = [
+  { title: 'apple', description: 'A round fruit that grows on trees.' },
+  { title: 'bridge', description: 'A structure built to cross over a river, road, or valley.' },
+  { title: 'planet', description: 'A large round object that orbits a star in space.' },
+  { title: 'river', description: 'A large natural stream of water flowing to the sea or a lake.' },
+  { title: 'castle', description: 'A large strong building, often from medieval times.' },
+  { title: 'forest', description: 'A large area covered mainly with trees and plants.' },
+  { title: 'camera', description: 'A device used to take photographs or record video.' },
+  { title: 'rocket', description: 'A vehicle that travels into space.' },
+  { title: 'guitar', description: 'A musical instrument with strings that you play with your fingers or a pick.' },
+  { title: 'island', description: 'A piece of land completely surrounded by water.' },
+  { title: 'mountain', description: 'A very high hill, often with a rocky peak.' },
+  { title: 'bicycle', description: 'A vehicle with two wheels that you pedal to move.' },
+  { title: 'window', description: 'An opening in a wall that lets in light, usually covered with glass.' },
+  { title: 'lantern', description: 'A portable light, often in a protective case.' },
+  { title: 'compass', description: 'A tool used to show direction, with a needle that points north.' },
+  { title: 'puzzle', description: 'A game or problem that tests your knowledge or imagination.' },
+  { title: 'anchor', description: 'A heavy object used to keep a boat in one place.' },
+  { title: 'helmet', description: 'Protective headgear worn for safety.' },
+  { title: 'keyboard', description: 'A set of keys used for typing on a computer.' },
+  { title: 'lighthouse', description: 'A tall building with a light that guides ships at sea.' },
+];
 
 export default class Puzzle {
-  private url = URL;
   private _response: string;
 
   get response() {
@@ -14,61 +34,14 @@ export default class Puzzle {
   }
 
   async randomWord(): Promise<RandomWord> {
-    const data: RandomWord = {} as RandomWord;
+    // Pick a random noun from the local list.
+    const index = Math.floor(Math.random() * NOUNS.length);
+    const word = NOUNS[index];
 
-    // Try simple HTTP fetch first
-    try {
-      this._response = await this.parseUrl(this.url);
-      const parsed = this.extractWord(this._response);
-      if (parsed.title && parsed.description) {
-        return parsed;
-      }
-    } catch (e) {
-      // ignore and fall back to puppeteer
-    }
+    // Store the raw JSON response string for compatibility with the
+    // original `response` getter.
+    this._response = JSON.stringify(word);
 
-    // Fallback: use Puppeteer to bypass bot protection
-    this._response = await this.fetchWithPuppeteer(this.url);
-    const parsed = this.extractWord(this._response);
-    return parsed;
-  }
-
-  async parseUrl(url: string): Promise<string> {
-    const res = await fetch(url);
-    if (!res.ok) {
-      throw new Error(`Failed to fetch random word: ${res.status}`);
-    }
-    return res.text();
-  }
-
-  async fetchWithPuppeteer(url: string): Promise<string> {
-    // Use PUPPETEER_EXECUTABLE_PATH if provided (e.g. in constrained environments)
-    const executablePath = process.env.PUPPETEER_EXECUTABLE_PATH;
-
-    const browser = await puppeteer.launch({
-      headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox'],
-      executablePath: executablePath || undefined,
-    });
-
-    try {
-      const page = await browser.newPage();
-      await page.goto(url, { waitUntil: 'networkidle2' });
-
-      const html = await page.content();
-      return html;
-    } finally {
-      await browser.close();
-    }
-  }
-
-  private extractWord(html: string): RandomWord {
-    const data: RandomWord = {} as RandomWord;
-    const $ = cheerio.load(html);
-
-    data.title = $('#shared_section > #random_word').text().trim();
-    data.description = $('#shared_section > #random_word_definition').text().trim();
-
-    return data;
+    return word;
   }
 }
